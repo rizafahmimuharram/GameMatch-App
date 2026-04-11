@@ -19,12 +19,24 @@ fun AppNavigation() {
         composable( "home") {
             HomeScreen(navController)
         }
-        composable("result/{genre}/{mood}") { backStackEntry ->
+        composable(
+            "result/{genre}/{mood}/{platform}/{rating}/{mode}"
+        ) { backStackEntry ->
 
             val genre = backStackEntry.arguments?.getString("genre") ?: ""
             val mood = backStackEntry.arguments?.getString("mood") ?: ""
+            val platform = backStackEntry.arguments?.getString("platform") ?: ""
+            val rating = backStackEntry.arguments?.getString("rating") ?: ""
+            val mode = backStackEntry.arguments?.getString("mode") ?: ""
 
-            ResultScreen(navController, genre, mood)
+            ResultScreen(
+                genre = genre,
+                mood = mood,
+                platform = platform,
+                rating = rating,
+                mode = mode,
+                navController
+            )
         }
     }
 }
