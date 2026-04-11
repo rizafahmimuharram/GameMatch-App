@@ -8,10 +8,11 @@ data class Game(
     val name: String,
     val genre: String,
     val mood: String,
+    val platforms: List<String>,
     val rating: Double,
+    val modes: List<String>,
     val description: String,
     val imageResId: Int,
     val isFavorite: Boolean = false
-
 )
 
