@@ -28,8 +28,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
+import com.rizafahmi0093.gamematch.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -56,7 +59,7 @@ fun HomeScreen(navController: NavController, name: String) {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "GameMatch (${currentStep + 1}/5)",
+                        text = "${stringResource(R.string.title_step, currentStep + 1)},/5)",
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
@@ -90,7 +93,7 @@ fun HomeScreen(navController: NavController, name: String) {
         ) {
             if (currentStep == 0) {
                 Text(
-                    text = "Halo, $name",
+                    text = stringResource(R.string.greeting, name),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -100,7 +103,7 @@ fun HomeScreen(navController: NavController, name: String) {
             Spacer(modifier = Modifier.height(8.dp))
             when (currentStep) {
                 0 -> {
-                    SectionLabel("Pilih Genre")
+                    SectionLabel(stringResource(R.string.choose_genre))
                     genres.forEach { item ->
                         SelectionCard(item, selectedGenres == item) {
                             selectedGenres = item
@@ -110,7 +113,7 @@ fun HomeScreen(navController: NavController, name: String) {
                 }
 
                 1 -> {
-                    SectionLabel("Pilih Mood")
+                    SectionLabel(stringResource(R.string.choose_mood))
                     moods.forEach { item ->
                         SelectionCard(item, selectedMood == item) {
                             selectedMood = item
@@ -120,7 +123,7 @@ fun HomeScreen(navController: NavController, name: String) {
                 }
 
                 2 -> {
-                    SectionLabel("Pilih Platform")
+                    SectionLabel(stringResource(R.string.choose_platform))
                     platforms.forEach { item ->
                         SelectionCard(item, selectedPlatform == item) {
                             selectedPlatform = item
@@ -130,7 +133,7 @@ fun HomeScreen(navController: NavController, name: String) {
                 }
 
                 3 -> {
-                    SectionLabel("Pilih Rating")
+                    SectionLabel(stringResource(R.string.choose_rating))
                     ratings.forEach { item ->
                         SelectionCard(item, selectedRating == item) {
                             selectedRating = item
@@ -140,7 +143,7 @@ fun HomeScreen(navController: NavController, name: String) {
                 }
 
                 4 -> {
-                    SectionLabel("Pilih Mode")
+                    SectionLabel(stringResource(R.string.choose_mode))
                     modes.forEach { item ->
                         SelectionCard(item, selectedMode == item) {
                             selectedMode = item
@@ -148,6 +151,8 @@ fun HomeScreen(navController: NavController, name: String) {
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
+
+                    val context = LocalContext.current
 
                     Button(
                         onClick = {
@@ -157,9 +162,9 @@ fun HomeScreen(navController: NavController, name: String) {
                                 selectedRating.isEmpty() ||
                                 selectedMode.isEmpty()
                             ) {
-                                errorMessage = "Lengkapi semua pilihan terlebih dahulu!"
+                                errorMessage = context.getString(R.string.error_empty)
                             } else {
-                                errorMessage = "" // reset
+                                errorMessage = ""
 
                                 navController.navigate(
                                     "result/$selectedGenres/$selectedMood/$selectedPlatform/$selectedRating/$selectedMode"
@@ -168,7 +173,7 @@ fun HomeScreen(navController: NavController, name: String) {
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("LIHAT HASIL")
+                        Text(stringResource(R.string.see_result))
                     }
                     if (errorMessage.isNotEmpty()) {
                         Text(

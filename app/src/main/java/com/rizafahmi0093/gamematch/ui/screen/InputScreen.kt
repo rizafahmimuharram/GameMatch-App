@@ -1,5 +1,6 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
+import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
+import com.rizafahmi0093.gamematch.R
 
 @Composable
 fun InputScreen(navController: NavController) {
@@ -27,12 +30,15 @@ fun InputScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("Masukkan Nama Kamu", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            text = stringResource(R.string.input_title),
+            style = MaterialTheme.typography.headlineSmall
+        )
 
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Nama") }
+            label =  { Text(stringResource(R.string.input_label_name)) }
         )
 
         Button(
@@ -41,7 +47,7 @@ fun InputScreen(navController: NavController) {
             },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Lanjut")
+            Text(stringResource(R.string.input_button_next))
         }
     }
 }

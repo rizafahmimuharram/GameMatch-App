@@ -1,3 +1,22 @@
-<resources>
-    <string name="app_name">GameMatch</string>
-</resources>
+    <resources>
+        <string name="app_name">GameMatch</string>
+        <string name="splash_desc">
+            Temukan game terbaik\nsesuai mood kamu
+        </string>
+        <string name="start_button">Mulai</string>
+        <string name="title_step">GameMatch (%1$d/5)</string>
+        <string name="greeting">Halo, %1$s</string>
+        <string name="choose_genre">Pilih Genre</string>
+        <string name="choose_mood">Pilih Mood</string>
+        <string name="choose_platform">Pilih Platform</string>
+        <string name="choose_rating">Pilih Rating</string>
+        <string name="choose_mode">Pilih Mode</string>
+        <string name="see_result">LIHAT HASIL</string>
+        <string name="back">&lt; Kembali</string>
+        <string name="error_empty">Lengkapi semua pilihan terlebih dahulu!</string>
+
+            <string name="input_title">Masukkan Nama Kamu</string>
+            <string name="input_label_name">Nama</string>
+            <string name="input_button_next">Lanjut</string>
+
+    </resources>

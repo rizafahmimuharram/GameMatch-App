@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -42,7 +43,7 @@ fun SplashScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Temukan game terbaik\nsesuai mood kamu ",
+            text = stringResource(R.string.splash_desc),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
@@ -56,7 +57,7 @@ fun SplashScreen(navController: NavController) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Mulai")
+            Text(stringResource(R.string.start_button))
         }
     }
 }
