@@ -16,7 +16,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "splash" // 🔥 ganti dari home
+        startDestination = "splash"
     ) {
 
         composable("splash") {
@@ -33,10 +33,9 @@ fun AppNavigation() {
         }
 
         composable(
-            "result/{name}/{genre}/{mood}/{platform}/{rating}/{mode}"
+            "result/{genre}/{mood}/{platform}/{rating}/{mode}"
         ) { backStackEntry ->
 
-            val name = backStackEntry.arguments?.getString("name") ?: ""
             val genre = backStackEntry.arguments?.getString("genre") ?: ""
             val mood = backStackEntry.arguments?.getString("mood") ?: ""
             val platform = backStackEntry.arguments?.getString("platform") ?: ""
@@ -44,7 +43,6 @@ fun AppNavigation() {
             val mode = backStackEntry.arguments?.getString("mode") ?: ""
 
             ResultScreen(
-                name,
                 genre,
                 mood,
                 platform,

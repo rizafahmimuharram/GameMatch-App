@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,8 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,14 +35,14 @@ import androidx.navigation.NavController
 @Composable
 fun HomeScreen(navController: NavController, name: String) {
 
-    var selectedGenres by remember { mutableStateOf("") }
-    var selectedMood by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
-    var selectedPlatform by remember { mutableStateOf("") }
-    var selectedRating by remember { mutableStateOf("") }
-    var selectedMode by remember { mutableStateOf("") }
+    var selectedGenres by rememberSaveable  { mutableStateOf("") }
+    var selectedMood by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf("") }
+    var selectedPlatform by rememberSaveable { mutableStateOf("") }
+    var selectedRating by rememberSaveable { mutableStateOf("") }
+    var selectedMode by rememberSaveable { mutableStateOf("") }
 
-    var currentStep by remember { mutableStateOf(0) }
+    var currentStep by remember { mutableIntStateOf(0) }
 
     val genres = listOf("Action", "RPG", "Simulation", "Horror", "Sports")
     val moods = listOf("Santai", "Tegang", "Competitive", "Casual", "Serius")
@@ -65,7 +65,7 @@ fun HomeScreen(navController: NavController, name: String) {
                     if (currentStep > 0) {
                         IconButton(onClick = { currentStep-- }) {
                             Icon(
-                                imageVector = Icons.Default.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
@@ -76,6 +76,8 @@ fun HomeScreen(navController: NavController, name: String) {
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
+
+
         }
     ) { padding ->
         Column(
@@ -86,9 +88,16 @@ fun HomeScreen(navController: NavController, name: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            if (currentStep == 0) {
+                Text(
+                    text = "Halo, $name",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
-            Text("Halo, $name")
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
+            Spacer(modifier = Modifier.height(8.dp))
             when (currentStep) {
                 0 -> {
                     SectionLabel("Pilih Genre")
@@ -140,17 +149,35 @@ fun HomeScreen(navController: NavController, name: String) {
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    if (selectedMode.isNotEmpty()) {
-                        Button(
-                            onClick = {
+                    Button(
+                        onClick = {
+                            if (selectedGenres.isEmpty() ||
+                                selectedMood.isEmpty() ||
+                                selectedPlatform.isEmpty() ||
+                                selectedRating.isEmpty() ||
+                                selectedMode.isEmpty()
+                            ) {
+                                errorMessage = "Lengkapi semua pilihan terlebih dahulu!"
+                            } else {
+                                errorMessage = "" // reset
+
                                 navController.navigate(
-                                    "result/$name/$selectedGenres/$selectedMood/$selectedPlatform/$selectedRating/$selectedMode"
+                                    "result/$selectedGenres/$selectedMood/$selectedPlatform/$selectedRating/$selectedMode"
                                 )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("LIHAT HASIL")
-                        }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("LIHAT HASIL")
+                    }
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                     }
                 }
             }
@@ -161,12 +188,12 @@ fun HomeScreen(navController: NavController, name: String) {
                     onClick = { currentStep-- },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Text("< Kembali ke tahap sebelumnya")
+                    Text("< Kembali")
                 }
             }
         }
     }
-}
+
 
 @Composable
 fun SectionLabel(text: String) {
