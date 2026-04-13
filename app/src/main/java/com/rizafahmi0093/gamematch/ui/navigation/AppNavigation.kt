@@ -6,7 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rizafahmi0093.gamematch.ui.screen.HomeScreen
+import com.rizafahmi0093.gamematch.ui.screen.InputScreen
 import com.rizafahmi0093.gamematch.ui.screen.ResultScreen
+import com.rizafahmi0093.gamematch.ui.screen.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -14,15 +16,27 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "splash" // 🔥 ganti dari home
     ) {
-        composable( "home") {
-            HomeScreen(navController)
+
+        composable("splash") {
+            SplashScreen(navController)
         }
+
+        composable("input") {
+            InputScreen(navController)
+        }
+
+        composable("home/{name}") { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            HomeScreen(navController, name)
+        }
+
         composable(
-            "result/{genre}/{mood}/{platform}/{rating}/{mode}"
+            "result/{name}/{genre}/{mood}/{platform}/{rating}/{mode}"
         ) { backStackEntry ->
 
+            val name = backStackEntry.arguments?.getString("name") ?: ""
             val genre = backStackEntry.arguments?.getString("genre") ?: ""
             val mood = backStackEntry.arguments?.getString("mood") ?: ""
             val platform = backStackEntry.arguments?.getString("platform") ?: ""
@@ -30,11 +44,12 @@ fun AppNavigation() {
             val mode = backStackEntry.arguments?.getString("mode") ?: ""
 
             ResultScreen(
-                genre = genre,
-                mood = mood,
-                platform = platform,
-                rating = rating,
-                mode = mode,
+                name,
+                genre,
+                mood,
+                platform,
+                rating,
+                mode,
                 navController
             )
         }

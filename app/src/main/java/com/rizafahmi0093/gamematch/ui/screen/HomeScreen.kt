@@ -33,7 +33,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, name: String) {
 
     var selectedGenres by remember { mutableStateOf("") }
     var selectedMood by remember { mutableStateOf("") }
@@ -86,6 +86,9 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+
+            Text("Halo, $name")
+
             when (currentStep) {
                 0 -> {
                     SectionLabel("Pilih Genre")
@@ -140,7 +143,9 @@ fun HomeScreen(navController: NavController) {
                     if (selectedMode.isNotEmpty()) {
                         Button(
                             onClick = {
-                                navController.navigate("result/$selectedGenres/$selectedMood/$selectedPlatform/$selectedRating/$selectedMode")
+                                navController.navigate(
+                                    "result/$name/$selectedGenres/$selectedMood/$selectedPlatform/$selectedRating/$selectedMode"
+                                )
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

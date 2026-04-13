@@ -23,9 +23,12 @@ import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.data.GameRepository
 import com.rizafahmi0093.gamematch.model.Game
 import com.rizafahmi0093.gamematch.viewmodel.GameViewModel
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ResultScreen(
+    name: String,
     genre: String,
     mood: String,
     platform: String,
@@ -35,23 +38,24 @@ fun ResultScreen(
 ) {
     val viewModel: GameViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
-    // 🔥 Load data sekali
+
     LaunchedEffect(Unit) {
         viewModel.loadGames(genre, mood, platform, rating, mode)
     }
 
     val games = viewModel.recommendedGames.value
+    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
-        // 🔥 HEADER
         item {
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
-                "Hasil Rekomendasi",
+                "Rekomendasi Game Untuk Kamu",
                 style = MaterialTheme.typography.headlineMedium
             )
 
@@ -65,8 +69,6 @@ fun ResultScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-
-        // 🔥 EMPTY STATE
         if (games.isEmpty()) {
             item {
                 Text(
@@ -75,13 +77,43 @@ fun ResultScreen(
                 )
             }
         }
-
-        // 🔥 LIST GAME
         items(games) { game ->
             GameCard(game)
         }
 
-        // 🔥 BUTTON BACK
+        item {
+            Button(
+                onClick = {
+
+                    val shareText = buildString {
+                        append("Halo! Ini rekomendasi game dari GameMatch 🎮\n\n")
+                        append("Pilihan saya:\n")
+                        append("Genre: $genre\n")
+                        append("Mood: $mood\n\n")
+
+                        append("Game Rekomendasi:\n")
+
+                        games.forEach {
+                            append("- ${it.name} ⭐${it.rating}\n")
+                        }
+                    }
+
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                    }
+
+                    context.startActivity(
+                        Intent.createChooser(intent, "Bagikan ke")
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Bagikan")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         item {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -105,7 +137,7 @@ fun GameCard(game: Game) {
     ) {
         Column {
 
-            // 🔥 IMAGE
+
             Image(
                 painter = painterResource(id = game.imageResId),
                 contentDescription = game.name,
