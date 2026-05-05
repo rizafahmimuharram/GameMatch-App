@@ -21,7 +21,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.model.Game
-import com.rizafahmi0093.gamematch.viewmodel.GameViewModel
 
 @Composable
 fun ResultScreen(

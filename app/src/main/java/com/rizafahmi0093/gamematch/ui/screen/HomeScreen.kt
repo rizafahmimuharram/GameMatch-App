@@ -48,7 +48,7 @@ fun HomeScreen(navController: NavController, name: String) {
     var currentStep by remember { mutableIntStateOf(0) }
 
     val genres = listOf("Action", "RPG", "Simulation", "Horror", "Sports")
-    val moods = listOf("Santai", "Tegang", "Competitive", "Casual", "Serius")
+    val moods = listOf("Relaxed", "Tense", "Competitive", "Casual", "Serious")
     val platforms = listOf("PC", "Mobile", "Console")
     val ratings = listOf("4.5", "4.0", "Any")
     val modes = listOf("Single", "Multi", "Coop")
@@ -59,7 +59,7 @@ fun HomeScreen(navController: NavController, name: String) {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "${stringResource(R.string.title_step, currentStep + 1)},/5)",
+                        text = stringResource(R.string.title_step, currentStep + 1),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
