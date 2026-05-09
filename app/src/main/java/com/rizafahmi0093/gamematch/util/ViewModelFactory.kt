@@ -3,9 +3,9 @@ package com.rizafahmi0093.gamematch.util
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.rizaFahmi0093.gamematch.database.MatchDb
-import com.rizaFahmi0093.gamematch.ui.screen.DetailViewModel
-import com.rizaFahmi0093.gamematch.ui.screen.MainViewModel
+import com.rizafahmi0093.gamematch.database.MatchDb
+import com.rizafahmi0093.gamematch.viewmodel.DetailViewModel
+import com.rizafahmi0093.gamematch.viewmodel.MainViewModel
 
 class ViewModelFactory(
     private val context: Context
@@ -16,12 +16,25 @@ class ViewModelFactory(
 
         val dao = MatchDb.getInstance(context).matchDao()
 
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(dao) as T
-        } else if (modelClass.isAssignableFrom(DetailViewModel::class.java)) {
-            return DetailViewModel(dao) as T
-        }
+        return when {
 
-        throw IllegalArgumentException("Unknown ViewModel class")
+            modelClass.isAssignableFrom(
+                MainViewModel::class.java
+            ) -> {
+                MainViewModel(dao) as T
+            }
+
+            modelClass.isAssignableFrom(
+                DetailViewModel::class.java
+            ) -> {
+                DetailViewModel(dao) as T
+            }
+
+            else -> {
+                throw IllegalArgumentException(
+                    "Unknown ViewModel class"
+                )
+            }
+        }
     }
 }

@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.Flow
 interface MatchDao {
 
     @Insert
-    suspend fun insert(match: Match)
+    suspend fun insert(matches: Match)
 
     @Update
-    suspend fun update(match: Match)
+    suspend fun update(matches: Match)
 
-    @Query("DELETE FROM match WHERE id = :id")
+    @Query("DELETE FROM matches WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("SELECT * FROM match ORDER BY date DESC")
+    @Query("SELECT * FROM matches ORDER BY date DESC")
     fun getAll(): Flow<List<Match>>
 
-    @Query("SELECT * FROM match WHERE id = :id")
+    @Query("SELECT * FROM matches WHERE id = :id")
     suspend fun getById(id: Long): Match?
 }

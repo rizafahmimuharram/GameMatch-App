@@ -1,4 +1,4 @@
-package com.rizafahmi0093.gamematch.ui.screen
+package com.rizafahmi0093.gamematch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

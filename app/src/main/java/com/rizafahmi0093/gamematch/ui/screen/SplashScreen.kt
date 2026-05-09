@@ -19,8 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rizafahmi0093.gamematch.R
 import androidx.compose.ui.res.stringResource
+import com.rizafahmi0093.gamematch.R
 
 
 @Composable

@@ -3,7 +3,7 @@
     import androidx.room.Entity
     import androidx.room.PrimaryKey
 
-    @Entity(tableName = "match")
+    @Entity(tableName = "matches")
     data class Match(
         @PrimaryKey(autoGenerate = true)
         val id: Long = 0L,

@@ -1,14 +1,34 @@
 package com.rizafahmi0093.gamematch.navigation
 
-const val KEY_ID_MATCH = "idMatch"
 
 sealed class Screen(val route: String) {
 
-    data object Home : Screen("home")
+    data object Splash : Screen("splash")
 
-    data object FormBaru : Screen("form_match")
+    data object Input : Screen("input")
 
-    data object FormUbah : Screen("form_match/{$KEY_ID_MATCH}") {
-        fun withId(id: Long) = "form_match/$id"
+    data object Home : Screen("home/{name}") {
+        fun withName(name: String) = "home/$name"
+    }
+
+    data object Result :
+        Screen("result/{genre}/{mood}/{platform}/{rating}/{mode}") {
+
+        fun withArgs(
+            genre: String,
+            mood: String,
+            platform: String,
+            rating: String,
+            mode: String
+        ) =
+            "result/$genre/$mood/$platform/$rating/$mode"
+    }
+
+    data object Main : Screen("main")
+
+    data object FormBaru : Screen("formBaru")
+
+    data object FormUbah : Screen("formUbah/{idMatch}") {
+        fun withId(id: Long) = "formUbah/$id"
     }
 }

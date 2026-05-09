@@ -1,17 +1,25 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,26 +30,72 @@ import androidx.navigation.compose.rememberNavController
 import com.rizafahmi0093.gamematch.model.Match
 import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.ui.theme.GameMatchTheme
+import com.rizafahmi0093.gamematch.util.SettingsDataStore
 import com.rizafahmi0093.gamematch.util.ViewModelFactory
-
-
+import com.rizafahmi0093.gamematch.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.rizafahmi0093.gamematch.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
 
+    val context = LocalContext.current
+    val dataStore = SettingsDataStore(context)
+
+    val showList by dataStore.layoutFlow.collectAsState(initial = true)
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text("Game Match List")
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
+                title = {
+                    Text(text = stringResource(id = R.string.match_history))
+                },
+
+                colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
-                )
+                ),
+
+                actions = {
+
+                    IconButton(
+                        onClick = {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                dataStore.saveLayout(!showList)
+                            }
+                        }
+                    ) {
+
+                        Icon(
+                            painter = painterResource(
+                                id = if (showList)
+                                    R.drawable.outline_view_list_24
+                                else
+                                    R.drawable.outline_grid_view_24
+                            ),
+
+                            contentDescription = stringResource(
+                                id = if (showList)
+                                    R.string.grid
+                                else
+                                    R.string.list
+                            ),
+
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             )
         },
+
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -50,13 +104,15 @@ fun MainScreen(navController: NavHostController) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Tambah Match",
+                    contentDescription = stringResource(R.string.tambah_match),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
     ) { innerPadding ->
+
         ScreenContent(
+            showList = showList,
             modifier = Modifier.padding(innerPadding),
             navController = navController
         )
@@ -65,86 +121,175 @@ fun MainScreen(navController: NavHostController) {
 
 @Composable
 fun ScreenContent(
+    showList: Boolean,
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
+
     val context = LocalContext.current
     val factory = ViewModelFactory(context)
+
     val viewModel: MainViewModel = viewModel(factory = factory)
 
     val data by viewModel.data.collectAsState(initial = emptyList())
 
     if (data.isEmpty()) {
-        EmptyState(modifier)
-    } else {
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 84.dp)
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(data) { item ->
-                ListItem(match = item) {
-                    navController.navigate(Screen.FormUbah.withId(item.id))
+
+            Text(
+                text = stringResource(id = R.string.list_kosong)
+            )
+        }
+
+    } else {
+
+        if (showList) {
+
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 84.dp)
+            ) {
+
+                items(data) { item ->
+
+                    ListItem(match = item) {
+
+                        navController.navigate(
+                            Screen.FormUbah.withId(item.id)
+                        )
+                    }
+
+                    HorizontalDivider()
                 }
-                HorizontalDivider()
+            }
+
+        } else {
+
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+
+                modifier = modifier.fillMaxSize(),
+
+                verticalItemSpacing = 8.dp,
+
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+                contentPadding = PaddingValues(8.dp)
+            ) {
+
+                items(data) { item ->
+
+                    GridItem(match = item) {
+
+                        navController.navigate(
+                            Screen.FormUbah.withId(item.id)
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun EmptyState(modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Belum ada data match ",
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
+fun ListItem(
+    match: Match,
+    onClick: () -> Unit
+) {
 
-@Composable
-fun ListItem(match: Match, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
-        // Player vs Player
         Text(
-            text = "${match.player1} vs ${match.player2}",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium,
+            text = "${match.player1} VS ${match.player2}",
+
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+
+            overflow = TextOverflow.Ellipsis,
+
+            fontWeight = FontWeight.Bold
         )
 
-        // Score
         Text(
-            text = "Score: ${match.score}",
-            style = MaterialTheme.typography.bodyMedium
+            text = "Score : ${match.score}"
         )
 
-        // Date
         Text(
-            text = match.date,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline
+            text = match.date
         )
     }
 }
 
+@Composable
+fun GridItem(
+    match: Match,
+    onClick: () -> Unit
+) {
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+
+        border = BorderStroke(
+            1.dp,
+            DividerDefaults.color
+        )
+    ) {
+
+        Column(
+            modifier = Modifier.padding(12.dp),
+
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Text(
+                text = "${match.player1} VS ${match.player2}",
+
+                fontWeight = FontWeight.Bold,
+
+                maxLines = 2,
+
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = "Score : ${match.score}"
+            )
+
+            Text(
+                text = match.date
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 fun MainScreenPreview() {
+
     GameMatchTheme {
         MainScreen(rememberNavController())
     }
