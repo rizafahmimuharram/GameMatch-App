@@ -29,4 +29,21 @@ class SettingsDataStore(private val context: Context) {
             preferences[IS_LIST] = isList
         }
     }
+
+    private val IS_DARK_MODE =
+        booleanPreferencesKey("is_dark_mode")
+
+    val themeFlow: Flow<Boolean> =
+        context.dataStore.data.map { preferences ->
+
+            preferences[IS_DARK_MODE] ?: false
+        }
+
+    suspend fun saveTheme(isDark: Boolean) {
+
+        context.dataStore.edit { preferences ->
+
+            preferences[IS_DARK_MODE] = isDark
+        }
+    }
 }

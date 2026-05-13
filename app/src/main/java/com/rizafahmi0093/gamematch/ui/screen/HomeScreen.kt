@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +41,7 @@ import androidx.navigation.NavController
 import androidx.compose.ui.res.stringResource
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.navigation.Screen
+import com.rizafahmi0093.gamematch.util.SettingsDataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -101,6 +105,15 @@ fun HomeScreen(
     )
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    val dataStore =
+        SettingsDataStore(context)
+
+    val isDarkMode by
+    dataStore.themeFlow.collectAsState(
+        initial = false
+    )
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -132,6 +145,38 @@ fun HomeScreen(
                                     MaterialTheme.colorScheme.onPrimary
                             )
                         }
+                    }
+                },
+
+                actions = {
+
+                    val coroutineScope =
+                        rememberCoroutineScope()
+
+                    IconButton(
+                        onClick = {
+
+                            coroutineScope.launch {
+
+                                dataStore.saveTheme(
+                                    !isDarkMode
+                                )
+                            }
+                        }
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                if (isDarkMode)
+                                    Icons.Default.LightMode
+                                else
+                                    Icons.Default.DarkMode,
+
+                            contentDescription = null,
+
+                            tint =
+                                MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 },
 
