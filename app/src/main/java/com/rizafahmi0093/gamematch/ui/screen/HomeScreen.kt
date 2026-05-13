@@ -1,5 +1,6 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -21,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +45,7 @@ import com.rizafahmi0093.gamematch.util.SettingsDataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
@@ -113,6 +114,8 @@ fun HomeScreen(
     dataStore.themeFlow.collectAsState(
         initial = false
     )
+    val emptyError =
+        stringResource(R.string.error_empty)
 
     Scaffold(
         topBar = {
@@ -248,7 +251,9 @@ fun HomeScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Match History Record")
+                        Text(
+                            text = stringResource(R.string.history)
+                        )
                     }
 
                 }
@@ -353,8 +358,7 @@ fun HomeScreen(
                                 selectedRating.isEmpty() ||
                                 selectedMode.isEmpty()
                             ) {
-                                errorMessage =
-                                    context.getString(R.string.error_empty)
+                                errorMessage = emptyError
                             } else {
                                 errorMessage = ""
                                 navController.navigate(

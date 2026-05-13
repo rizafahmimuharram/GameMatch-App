@@ -13,6 +13,7 @@
     <string name="choose_platform">Choose Platform</string>
     <string name="choose_rating">Choose Rating</string>
     <string name="choose_mode">Choose Mode</string>
+    <string name="history">Match History Record</string>
 
     <string name="recommendations">Recomendations</string>
     <string name="see_result">SEE RESULT</string>
