@@ -31,4 +31,6 @@ sealed class Screen(val route: String) {
     data object FormUbah : Screen("formUbah/{idMatch}") {
         fun withId(id: Long) = "formUbah/$id"
     }
+
+    object Trending : Screen("trending")
 }

@@ -167,7 +167,6 @@ fun HomeScreen(
                             }
                         }
                     ) {
-
                         Icon(
                             imageVector =
                                 if (isDarkMode)
@@ -207,7 +206,6 @@ fun HomeScreen(
             verticalArrangement =
                 Arrangement.Top
         ) {
-
             if (currentStep == 0) {
 
                 Text(
@@ -256,6 +254,17 @@ fun HomeScreen(
                         )
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            navController.navigate(Screen.Trending.route)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Trending Games")
+                    }
+
                 }
 
                 1 -> {
@@ -263,7 +272,6 @@ fun HomeScreen(
                     SectionLabel(
                         stringResource(R.string.choose_mood)
                     )
-
                     moods.forEach { item ->
 
                         SelectionCard(
