@@ -38,4 +38,9 @@
     <string name="grid">Grid</string>
     <string name="list">List</string>
 
+    <string name="profil">Profil</string>
+    <string name="tutup">Tutup</string>
+    <string name="logout">Logout</string>
+    <string name="login_google">Login dengan Google</string>
+
 </resources>

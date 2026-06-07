@@ -1,5 +1,6 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,20 +12,44 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavController
-import androidx.compose.ui.res.stringResource
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.rizafahmi0093.gamematch.buildConfig
 import com.rizafahmi0093.gamematch.R
-
+import com.rizafahmi0093.gamematch.model.User
+import com.rizafahmi0093.gamematch.navigation.Screen
+import com.rizafahmi0093.gamematch.network.UserDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun SplashScreen(navController: NavController) {
+
+    val context = LocalContext.current
+    val dataStore = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(initial = User())
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -33,8 +58,6 @@ fun SplashScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-
         Image(
             painter = painterResource(id = R.drawable.game),
             contentDescription = "Logo",
@@ -42,6 +65,7 @@ fun SplashScreen(navController: NavController) {
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
         Text(
             text = stringResource(R.string.splash_desc),
             style = MaterialTheme.typography.bodyMedium,
@@ -50,14 +74,104 @@ fun SplashScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(40.dp))
 
+        if (user.email.isEmpty()) {
+            // Belum login → tampilkan tombol Google Sign-In
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        signIn(context, dataStore)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.login_google))
+            }
+        } else {
+            // Sudah login → tampilkan tombol Mulai + tombol profil
+            Button(
+                onClick = {
+                    navController.navigate(Screen.Input.route)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.start_button))
+            }
 
-        Button(
-            onClick = {
-                navController.navigate("input")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.start_button))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = { showDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "👤 ${user.name}")
+            }
         }
+    }
+
+    if (showDialog) {
+        ProfilDialog(
+            user = user,
+            onDismissRequest = { showDialog = false },
+            onConfirmation = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    signOut(context, dataStore)
+                }
+                showDialog = false
+            }
+        )
+    }
+}
+
+private suspend fun signIn(context: android.content.Context, dataStore: UserDataStore) {
+    val googleIdOption = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(false)
+        .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+        .build()
+
+    val request = GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
+
+    try {
+        val credentialManager = CredentialManager.create(context)
+        val result = credentialManager.getCredential(context, request)
+        handleSignIn(result, dataStore)
+    } catch (e: GetCredentialException) {
+        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
+    }
+}
+
+private suspend fun handleSignIn(
+    result: androidx.credentials.GetCredentialResponse,
+    dataStore: UserDataStore
+) {
+    val credential = result.credential
+    if (credential is androidx.credentials.CustomCredential &&
+        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+    ) {
+        try {
+            val googleId = GoogleIdTokenCredential.createFrom(credential.data)
+            val name = googleId.displayName ?: ""
+            val email = googleId.id
+            val photoUrl = googleId.profilePictureUri.toString()
+            dataStore.saveData(User(name, email, photoUrl))
+            Log.d("SIGN-IN", "User email: $email")
+        } catch (e: GoogleIdTokenParsingException) {
+            Log.e("SIGN-IN", "Error: ${e.message}")
+        }
+    } else {
+        Log.e("SIGN-IN", "Error: unrecognized custom credential type.")
+    }
+}
+
+private suspend fun signOut(context: android.content.Context, dataStore: UserDataStore) {
+    try {
+        val credentialManager = CredentialManager.create(context)
+        credentialManager.clearCredentialState(
+            androidx.credentials.ClearCredentialStateRequest()
+        )
+        dataStore.saveData(User())
+    } catch (e: androidx.credentials.exceptions.ClearCredentialException) {
+        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
     }
 }
