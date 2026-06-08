@@ -9,20 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,14 +26,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.ui.res.stringResource
 import com.rizafahmi0093.gamematch.R
+import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
+import com.rizafahmi0093.gamematch.network.UserDataStore
+import com.rizafahmi0093.gamematch.ui.components.GameMatchTopBar
+import com.rizafahmi0093.gamematch.ui.components.signOut
 import com.rizafahmi0093.gamematch.util.SettingsDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -52,7 +49,10 @@ fun HomeScreen(
     navController: NavController,
     name: String
 ) {
-
+    val context = LocalContext.current
+    val UserDataStore = UserDataStore(context)
+    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    var showDialog by remember { mutableStateOf(false) }
 
     var selectedGenres by rememberSaveable {
         mutableStateOf("")
@@ -105,10 +105,9 @@ fun HomeScreen(
         "Coop"
     )
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
-    val dataStore =
-        SettingsDataStore(context)
+
+    val dataStore = SettingsDataStore(context)
 
     val isDarkMode by
     dataStore.themeFlow.collectAsState(
@@ -119,76 +118,11 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(
-                            R.string.title_step,
-                            currentStep + 1
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-
-                navigationIcon = {
-
-                    if (currentStep > 0) {
-
-                        IconButton(
-                            onClick = {
-                                currentStep--
-                            }
-                        ) {
-
-                            Icon(
-                                imageVector =
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint =
-                                    MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                },
-
-                actions = {
-
-                    val coroutineScope =
-                        rememberCoroutineScope()
-
-                    IconButton(
-                        onClick = {
-
-                            coroutineScope.launch {
-
-                                dataStore.saveTheme(
-                                    !isDarkMode
-                                )
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector =
-                                if (isDarkMode)
-                                    Icons.Default.LightMode
-                                else
-                                    Icons.Default.DarkMode,
-
-                            contentDescription = null,
-
-                            tint =
-                                MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = Color.Unspecified,
-                    navigationIconContentColor = Color.Unspecified,
-                    titleContentColor = Color.Unspecified,
-                    actionIconContentColor = Color.Unspecified
-                )
+            GameMatchTopBar(
+                title = stringResource(R.string.title_step, currentStep + 1),
+                showBackButton = currentStep > 0,
+                onBackClick = { currentStep-- },
+                onProfilClick = { showDialog = true }
             )
         }
 
@@ -401,6 +335,19 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (showDialog) {
+        ProfilDialog(
+            user = user,
+            onDismissRequest = { showDialog = false },
+            onConfirmation = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    signOut(context, UserDataStore)
+                }
+                showDialog = false
+            }
+        )
     }
 }
 

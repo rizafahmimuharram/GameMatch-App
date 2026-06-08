@@ -1,6 +1,5 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
-import com.rizafahmi0093.gamematch.BuildConfig
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -35,10 +34,12 @@ import androidx.navigation.NavController
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.rizafahmi0093.gamematch.BuildConfig
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.UserDataStore
+import com.rizafahmi0093.gamematch.ui.components.signOut
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,8 +48,8 @@ import kotlinx.coroutines.launch
 fun SplashScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val dataStore = UserDataStore(context)
-    val user by dataStore.userFlow.collectAsState(initial = User())
+    val UserDataStore = UserDataStore(context)
+    val user by UserDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -79,7 +80,7 @@ fun SplashScreen(navController: NavController) {
             Button(
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        signIn(context, dataStore)
+                        signIn(context, UserDataStore)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -114,7 +115,7 @@ fun SplashScreen(navController: NavController) {
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, dataStore)
+                    signOut(context, UserDataStore)
                 }
                 showDialog = false
             }
@@ -164,14 +165,3 @@ private suspend fun handleSignIn(
     }
 }
 
-private suspend fun signOut(context: android.content.Context, dataStore: UserDataStore) {
-    try {
-        val credentialManager = CredentialManager.create(context)
-        credentialManager.clearCredentialState(
-            androidx.credentials.ClearCredentialStateRequest()
-        )
-        dataStore.saveData(User())
-    } catch (e: androidx.credentials.exceptions.ClearCredentialException) {
-        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
-    }
-}

@@ -11,28 +11,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,38 +37,34 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.TrendingGame
+import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.network.ApiStatus
+import com.rizafahmi0093.gamematch.network.UserDataStore
+import com.rizafahmi0093.gamematch.ui.components.GameMatchTopBar
+import com.rizafahmi0093.gamematch.ui.components.signOut
 import com.rizafahmi0093.gamematch.viewmodel.TrendingViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendingScreen(navController: NavController) {
+    val context = LocalContext.current
+    val UserDataStore = UserDataStore(context)
+    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    var showDialog by remember { mutableStateOf(false) }
     val viewModel: TrendingViewModel = viewModel()
     val data by viewModel.data.collectAsState()
     val status by viewModel.status.collectAsState()
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-
-                title = {
-                    Text(
-                        text = "Trending Games",
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+            GameMatchTopBar(
+                title = "Trending Games",
+                showBackButton = true,
+                onBackClick = { navController.popBackStack() },
+                onProfilClick = { showDialog = true }
             )
         }
     ) { padding ->
@@ -119,6 +112,19 @@ fun TrendingScreen(navController: NavController) {
                 }
             }
         }
+    }
+
+    if (showDialog) {
+        ProfilDialog(
+            user = user,
+            onDismissRequest = { showDialog = false },
+            onConfirmation = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    signOut(context, UserDataStore)
+                }
+                showDialog = false
+            }
+        )
     }
 }
 

@@ -1,25 +1,31 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
 import android.content.Intent
-import com.rizafahmi0093.gamematch.R
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,9 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.Game
+import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
+import com.rizafahmi0093.gamematch.network.UserDataStore
+import com.rizafahmi0093.gamematch.ui.components.GameMatchTopBar
+import com.rizafahmi0093.gamematch.ui.components.signOut
 import com.rizafahmi0093.gamematch.viewmodel.GameViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -42,8 +56,11 @@ fun ResultScreen(
     mode: String,
     navController: NavController
 ) {
-
+    val context = LocalContext.current
     val viewModel: GameViewModel = viewModel()
+    val dataStore = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(initial = User())
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadGames(
@@ -56,30 +73,17 @@ fun ResultScreen(
     }
     val games by viewModel.recommendedGames
         .collectAsStateWithLifecycle()
-    val context = LocalContext.current
+
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.recommendations
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = Color.Unspecified,
-                    navigationIconContentColor = Color.Unspecified,
-                    titleContentColor = Color.Unspecified,
-                    actionIconContentColor = Color.Unspecified
-                )
-
+            GameMatchTopBar(
+                title = stringResource(R.string.recommendations),
+                showBackButton = true,
+                onBackClick = { navController.popBackStack() },
+                onProfilClick = { showDialog = true }
             )
         }
-
     ) { paddingValues ->
 
         LazyColumn(
@@ -191,6 +195,20 @@ fun ResultScreen(
             }
         }
     }
+
+
+if (showDialog) {
+    ProfilDialog(
+        user = user,
+        onDismissRequest = { showDialog = false },
+        onConfirmation = {
+            CoroutineScope(Dispatchers.IO).launch {
+                signOut(context, dataStore)
+            }
+            showDialog = false
+        }
+    )
+}
 }
 
 @Composable
