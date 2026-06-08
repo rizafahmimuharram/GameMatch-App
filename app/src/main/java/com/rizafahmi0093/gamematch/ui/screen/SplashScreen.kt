@@ -48,8 +48,8 @@ import kotlinx.coroutines.launch
 fun SplashScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val UserDataStore = UserDataStore(context)
-    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    val userDataStore = UserDataStore(context)
+    val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -76,11 +76,10 @@ fun SplashScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(40.dp))
 
         if (user.email.isEmpty()) {
-            // Belum login → tampilkan tombol Google Sign-In
             Button(
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        signIn(context, UserDataStore)
+                        signIn(context, userDataStore)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -115,7 +114,10 @@ fun SplashScreen(navController: NavController) {
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, UserDataStore)
+                    signOut(context, userDataStore)
+                }
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
             }

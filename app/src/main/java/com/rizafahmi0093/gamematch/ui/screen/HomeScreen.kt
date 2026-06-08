@@ -50,8 +50,8 @@ fun HomeScreen(
     name: String
 ) {
     val context = LocalContext.current
-    val UserDataStore = UserDataStore(context)
-    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    val userDataStore = UserDataStore(context)
+    val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
 
     var selectedGenres by rememberSaveable {
@@ -343,7 +343,10 @@ fun HomeScreen(
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, UserDataStore)
+                    signOut(context, userDataStore)
+                }
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
             }

@@ -58,8 +58,8 @@ fun ResultScreen(
 ) {
     val context = LocalContext.current
     val viewModel: GameViewModel = viewModel()
-    val dataStore = UserDataStore(context)
-    val user by dataStore.userFlow.collectAsState(initial = User())
+    val userdataStore = UserDataStore(context)
+    val user by userdataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -203,7 +203,10 @@ if (showDialog) {
         onDismissRequest = { showDialog = false },
         onConfirmation = {
             CoroutineScope(Dispatchers.IO).launch {
-                signOut(context, dataStore)
+                signOut(context, userdataStore)
+            }
+            navController.navigate(Screen.Splash.route) {
+                popUpTo(0) { inclusive = true }
             }
             showDialog = false
         }

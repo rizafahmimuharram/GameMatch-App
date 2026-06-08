@@ -72,9 +72,9 @@ import kotlinx.coroutines.launch
 fun MainScreen(navController: NavHostController) {
 
     val context = LocalContext.current
-    val UserDataStore = UserDataStore(context)
+    val userDataStore = UserDataStore(context)
     val dataStore = SettingsDataStore(context)
-    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
 
     val showList by dataStore.layoutFlow.collectAsState(initial = true)
@@ -164,7 +164,10 @@ fun MainScreen(navController: NavHostController) {
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, UserDataStore)
+                    signOut(context, userDataStore)
+                }
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
             }

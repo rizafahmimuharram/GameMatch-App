@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.TrendingGame
 import com.rizafahmi0093.gamematch.model.User
+import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.ApiStatus
 import com.rizafahmi0093.gamematch.network.UserDataStore
 import com.rizafahmi0093.gamematch.ui.components.GameMatchTopBar
@@ -51,8 +52,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun TrendingScreen(navController: NavController) {
     val context = LocalContext.current
-    val UserDataStore = UserDataStore(context)
-    val user by UserDataStore.userFlow.collectAsState(initial = User())
+    val userDataStore = UserDataStore(context)
+    val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
     val viewModel: TrendingViewModel = viewModel()
     val data by viewModel.data.collectAsState()
@@ -120,7 +121,10 @@ fun TrendingScreen(navController: NavController) {
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, UserDataStore)
+                    signOut(context, userDataStore)
+                }
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
             }
