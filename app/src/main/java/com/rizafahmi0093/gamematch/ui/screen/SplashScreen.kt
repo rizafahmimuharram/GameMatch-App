@@ -1,5 +1,6 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
+import com.rizafahmi0093.gamematch.BuildConfig
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +35,6 @@ import androidx.navigation.NavController
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.rizafahmi0093.gamematch.buildConfig
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
