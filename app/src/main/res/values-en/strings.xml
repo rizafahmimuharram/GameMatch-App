@@ -51,6 +51,7 @@
     <string name="tutup">Close</string>
     <string name="logout">Logout</string>
     <string name="login_google">Login with Google</string>
+    <string name="ganti_nama">Change Name</string>
 
 
 </resources>

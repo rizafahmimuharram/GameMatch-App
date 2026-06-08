@@ -37,6 +37,7 @@ import com.rizafahmi0093.gamematch.ui.theme.GameMatchTheme
 fun ProfilDialog(
     user: User,
     onDismissRequest: () -> Unit,
+    onChangeName: () -> Unit,
     onConfirmation: () -> Unit
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -85,6 +86,10 @@ fun ProfilDialog(
                     ) {
                         Text(text = stringResource(R.string.tutup))
                     }
+                    OutlinedButton(onClick = { onChangeName() }) {
+                        Text(text = stringResource(R.string.ganti_nama))
+                    }
+
                     OutlinedButton(
                         onClick = { onConfirmation() },
                         modifier = Modifier.padding(8.dp),
@@ -109,6 +114,7 @@ fun DialogScreenPreview() {
         ProfilDialog(
             user = User("Riza Fahmi", "riza@gmail.com", ""),
             onDismissRequest = {},
+            onChangeName = {},
             onConfirmation = {}
         )
     }

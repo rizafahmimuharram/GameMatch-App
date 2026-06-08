@@ -20,13 +20,15 @@ class UserDataStore(private val context: Context) {
         private val USER_NAME = stringPreferencesKey("name")
         private val USER_EMAIL = stringPreferencesKey("email")
         private val USER_PHOTO = stringPreferencesKey("photoUrl")
+        private val USER_CUSTOM_NAME = stringPreferencesKey("customName")
     }
 
     val userFlow: Flow<User> = context.userDataStore.data.map { preferences ->
         User(
             name = preferences[USER_NAME] ?: "",
             email = preferences[USER_EMAIL] ?: "",
-            photoUrl = preferences[USER_PHOTO] ?: ""
+            photoUrl = preferences[USER_PHOTO] ?: "",
+            customName = preferences[USER_CUSTOM_NAME] ?: ""
         )
     }
 
@@ -35,6 +37,13 @@ class UserDataStore(private val context: Context) {
             preferences[USER_NAME] = user.name
             preferences[USER_EMAIL] = user.email
             preferences[USER_PHOTO] = user.photoUrl
+            preferences[USER_CUSTOM_NAME] = user.customName
+        }
+    }
+
+    suspend fun updateCustomName(name: String) {
+        context.userDataStore.edit { preferences ->
+            preferences[USER_CUSTOM_NAME] = name
         }
     }
 }

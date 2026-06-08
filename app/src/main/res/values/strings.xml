@@ -42,5 +42,6 @@
     <string name="tutup">Tutup</string>
     <string name="logout">Logout</string>
     <string name="login_google">Login dengan Google</string>
+    <string name="ganti_nama">Ganti Nama</string>
 
 </resources>
