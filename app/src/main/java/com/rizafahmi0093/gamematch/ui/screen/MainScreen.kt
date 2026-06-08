@@ -76,6 +76,7 @@ fun MainScreen(navController: NavHostController) {
     val dataStore = SettingsDataStore(context)
     val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
+    var showEditName by remember { mutableStateOf(false) }
 
     val showList by dataStore.layoutFlow.collectAsState(initial = true)
 
@@ -162,6 +163,10 @@ fun MainScreen(navController: NavHostController) {
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
+            onChangeName = {
+                showDialog = false
+                showEditName = true
+            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
                     signOut(context, userDataStore)
@@ -170,6 +175,19 @@ fun MainScreen(navController: NavHostController) {
                     popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
+            }
+        )
+    }
+
+    if (showEditName) {
+        EditNameDialog(
+            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            onDismiss = { showEditName = false },
+            onSave = { newName ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    userDataStore.updateCustomName(newName)
+                }
+                showEditName = false
             }
         )
     }

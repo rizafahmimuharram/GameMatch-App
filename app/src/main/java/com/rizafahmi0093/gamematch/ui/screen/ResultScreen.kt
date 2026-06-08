@@ -58,9 +58,10 @@ fun ResultScreen(
 ) {
     val context = LocalContext.current
     val viewModel: GameViewModel = viewModel()
-    val userdataStore = UserDataStore(context)
-    val user by userdataStore.userFlow.collectAsState(initial = User())
+    val userDataStore = UserDataStore(context)
+    val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
+    var showEditName by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadGames(
@@ -197,21 +198,37 @@ fun ResultScreen(
     }
 
 
-if (showDialog) {
-    ProfilDialog(
-        user = user,
-        onDismissRequest = { showDialog = false },
-        onConfirmation = {
-            CoroutineScope(Dispatchers.IO).launch {
-                signOut(context, userdataStore)
+    if (showDialog) {
+        ProfilDialog(
+            user = user,
+            onDismissRequest = { showDialog = false },
+            onChangeName = {
+                showDialog = false
+                showEditName = true
+            },
+            onConfirmation = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    signOut(context, userDataStore)
+                }
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(0) { inclusive = true }
+                }
+                showDialog = false
             }
-            navController.navigate(Screen.Splash.route) {
-                popUpTo(0) { inclusive = true }
+        )
+    }
+    if (showEditName) {
+        EditNameDialog(
+            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            onDismiss = { showEditName = false },
+            onSave = { newName ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    userDataStore.updateCustomName(newName)
+                }
+                showEditName = false
             }
-            showDialog = false
-        }
-    )
-}
+        )
+    }
 }
 
 @Composable

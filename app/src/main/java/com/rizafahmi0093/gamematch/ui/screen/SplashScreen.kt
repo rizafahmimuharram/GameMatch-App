@@ -48,9 +48,10 @@ import kotlinx.coroutines.launch
 fun SplashScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val userDataStore = UserDataStore(context)
-    val user by userDataStore.userFlow.collectAsState(initial = User())
+    val dataStore  = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
+    var showEditName by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -79,7 +80,7 @@ fun SplashScreen(navController: NavController) {
             Button(
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        signIn(context, userDataStore)
+                        signIn(context, dataStore)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -112,14 +113,29 @@ fun SplashScreen(navController: NavController) {
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
+            onChangeName = {
+                showDialog = false
+                showEditName = true
+            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    signOut(context, userDataStore)
-                }
-                navController.navigate(Screen.Splash.route) {
-                    popUpTo(0) { inclusive = true }
+                    signOut(context, dataStore)
                 }
                 showDialog = false
+            }
+
+        )
+    }
+
+    if (showEditName) {
+        EditNameDialog(
+            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            onDismiss = { showEditName = false },
+            onSave = { newName ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataStore.updateCustomName(newName)
+                }
+                showEditName = false
             }
         )
     }

@@ -53,6 +53,7 @@ fun HomeScreen(
     val userDataStore = UserDataStore(context)
     val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
+    var showEditName by remember { mutableStateOf(false) }
 
     var selectedGenres by rememberSaveable {
         mutableStateOf("")
@@ -341,6 +342,10 @@ fun HomeScreen(
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
+            onChangeName = {
+                showDialog = false
+                showEditName = true
+            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
                     signOut(context, userDataStore)
@@ -349,6 +354,19 @@ fun HomeScreen(
                     popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
+            }
+        )
+    }
+
+    if (showEditName) {
+        EditNameDialog(
+            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            onDismiss = { showEditName = false },
+            onSave = { newName ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    userDataStore.updateCustomName(newName)
+                }
+                showEditName = false
             }
         )
     }

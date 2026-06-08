@@ -58,6 +58,7 @@ fun TrendingScreen(navController: NavController) {
     val viewModel: TrendingViewModel = viewModel()
     val data by viewModel.data.collectAsState()
     val status by viewModel.status.collectAsState()
+    var showEditName by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -119,6 +120,10 @@ fun TrendingScreen(navController: NavController) {
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
+            onChangeName = {
+                showDialog = false
+                showEditName = true
+            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
                     signOut(context, userDataStore)
@@ -127,6 +132,18 @@ fun TrendingScreen(navController: NavController) {
                     popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
+            }
+        )
+    }
+    if (showEditName) {
+        EditNameDialog(
+            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            onDismiss = { showEditName = false },
+            onSave = { newName ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    userDataStore.updateCustomName(newName)
+                }
+                showEditName = false
             }
         )
     }
