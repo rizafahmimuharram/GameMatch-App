@@ -4,8 +4,9 @@ import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -40,13 +41,18 @@ fun ProfilDialog(
     onChangeName: () -> Unit,
     onConfirmation: () -> Unit
 ) {
+    // tampilkan customName jika ada, fallback ke nama Google
+    val displayName = if (user.customName.isNotEmpty()) user.customName else user.name
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier.padding(16.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AsyncImage(
@@ -62,43 +68,47 @@ fun ProfilDialog(
                         .size(100.dp)
                         .clip(CircleShape)
                 )
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = user.name,
+                    text = displayName,          // ← pakai displayName, bukan user.name
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = user.email,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodySmall
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.Center
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // tombol dalam Column agar tidak saling dorong
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp)
+                        onClick = { onChangeName() },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = stringResource(R.string.tutup))
-                    }
-                    OutlinedButton(onClick = { onChangeName() }) {
                         Text(text = stringResource(R.string.ganti_nama))
                     }
-
                     OutlinedButton(
                         onClick = { onConfirmation() },
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
                     ) {
                         Text(
                             text = stringResource(R.string.logout),
                             color = MaterialTheme.colorScheme.error
                         )
+                    }
+                    OutlinedButton(
+                        onClick = { onDismissRequest() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = stringResource(R.string.tutup))
                     }
                 }
             }
@@ -109,10 +119,10 @@ fun ProfilDialog(
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
-fun DialogScreenPreview() {
+fun ProfilDialogPreview() {
     GameMatchTheme {
         ProfilDialog(
-            user = User("Riza Fahmi", "riza@gmail.com", ""),
+            user = User("Riza Fahmi", "riza@gmail.com", "", "Riza"),
             onDismissRequest = {},
             onChangeName = {},
             onConfirmation = {}
