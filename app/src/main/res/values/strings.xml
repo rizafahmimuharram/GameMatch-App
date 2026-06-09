@@ -18,7 +18,7 @@
     <string name="see_result">LIHAT HASIL</string>
     <string name="back">&lt; Kembali</string>
     <string name="error_empty">Lengkapi semua pilihan terlebih dahulu!</string>
-    <string name="input_title">Masukkan Nama Kamu</string>
+    <string name="input_title">Edit nama kamu?</string>
     <string name="input_label_name">Nama</string>
     <string name="input_button_next">Lanjut</string>
     <string name="tambah_match">Tambah Match</string>

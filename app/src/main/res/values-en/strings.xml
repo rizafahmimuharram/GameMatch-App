@@ -21,7 +21,7 @@
 
     <string name="error_empty">Please complete all selections first!</string>
 
-    <string name="input_title">Enter Your Name</string>
+    <string name="input_title">Edit your name?</string>
     <string name="input_label_name">Name</string>
     <string name="input_button_next">Continue</string>
 
