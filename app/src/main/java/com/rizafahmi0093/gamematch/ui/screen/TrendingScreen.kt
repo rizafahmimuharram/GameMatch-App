@@ -137,11 +137,11 @@ fun TrendingScreen(navController: NavController) {
     }
     if (showEditName) {
         EditNameDialog(
-            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            currentName = user.name,
             onDismiss = { showEditName = false },
             onSave = { newName ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userDataStore.updateCustomName(newName)
+                    userDataStore.updateName(newName)
                 }
                 showEditName = false
             }

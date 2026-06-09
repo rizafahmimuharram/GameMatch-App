@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 fun SplashScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val dataStore  = UserDataStore(context)
+    val dataStore = UserDataStore(context)
     val user by dataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
     var showEditName by remember { mutableStateOf(false) }
@@ -132,14 +132,13 @@ fun SplashScreen(navController: NavController) {
 
         )
     }
-
     if (showEditName) {
         EditNameDialog(
-            currentName = if (user.customName.isNotEmpty()) user.customName else user.name,
+            currentName = user.name,
             onDismiss = { showEditName = false },
             onSave = { newName ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    dataStore.updateCustomName(newName)
+                    dataStore.updateName(newName)
                 }
                 showEditName = false
             }

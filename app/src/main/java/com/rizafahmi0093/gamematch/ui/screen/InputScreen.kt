@@ -21,13 +21,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
+import androidx.compose.runtime.collectAsState
+import com.rizafahmi0093.gamematch.model.User
+import com.rizafahmi0093.gamematch.network.UserDataStore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(navController: NavController) {
 
-    var name by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
+    val dataStore = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(initial = User())
+    var name by rememberSaveable(user.name) { mutableStateOf(user.name) }
 
     Column(
         modifier = Modifier

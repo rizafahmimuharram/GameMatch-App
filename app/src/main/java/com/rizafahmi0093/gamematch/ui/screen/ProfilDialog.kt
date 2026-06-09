@@ -42,8 +42,6 @@ fun ProfilDialog(
     onConfirmation: () -> Unit
 ) {
 
-    val displayName = if (user.customName.isNotEmpty()) user.customName else user.name
-
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier.padding(16.dp),
@@ -70,7 +68,7 @@ fun ProfilDialog(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = displayName,          // ← pakai displayName, bukan user.name
+                    text = user.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold
@@ -83,7 +81,6 @@ fun ProfilDialog(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // tombol dalam Column agar tidak saling dorong
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -122,7 +119,7 @@ fun ProfilDialog(
 fun ProfilDialogPreview() {
     GameMatchTheme {
         ProfilDialog(
-            user = User("Riza Fahmi", "riza@gmail.com", "", "Riza"),
+            user = User("Riza Fahmi", "riza@gmail.com", ""),
             onDismissRequest = {},
             onChangeName = {},
             onConfirmation = {}
