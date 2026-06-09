@@ -10,5 +10,5 @@ data class Wishlist(
     val gameName: String,
     val genre: String,
     val rating: Double,
-    val imageId: Int
+    val imageResId: Int
 )

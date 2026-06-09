@@ -25,7 +25,7 @@ class WishlistViewModel(context: Context) : ViewModel() {
 
     fun removeWishlist(gameId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-        dao.deleteById(gameId)
+            dao.deleteById(gameId)
         }
     }
 }

@@ -47,6 +47,8 @@ import com.rizafahmi0093.gamematch.viewmodel.GameViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.rizafahmi0093.gamematch.util.ViewModelFactory
+import com.rizafahmi0093.gamematch.viewmodel.WishlistViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -60,6 +62,9 @@ fun ResultScreen(
 ) {
     val context = LocalContext.current
     val viewModel: GameViewModel = viewModel()
+    val wishlistViewModel: WishlistViewModel = viewModel(
+        factory = ViewModelFactory(context)
+    )
     val userDataStore = UserDataStore(context)
     val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
@@ -128,7 +133,7 @@ fun ResultScreen(
 
             items(games) { game ->
 
-                GameCard(game)
+                GameCard(game, wishlistViewModel)
             }
 
             item {
@@ -231,29 +236,10 @@ fun ResultScreen(
 }
 
 @Composable
-fun GameCard(game: Game) {
+fun GameCard(game: Game, wishlistViewModel: WishlistViewModel) {
     val isWishlisted by wishlistViewModel.isWishlisted(game.id)
         .collectAsState(initial = false)
 
-    OutlinedButton(
-        onClick = {
-            if (isWishlisted) {
-                wishlistViewModel.removeWishlist(game.id)
-            } else {
-                wishlistViewModel.addWishlist(
-                    Wishlist(
-                        gameId = game.id,
-                        gameName = game.name,
-                        genre = game.genre,
-                        rating = game.rating,
-                        imageResId = game.imageResId
-                    )
-                )
-            }
-        }
-    ) {
-        Text(if (isWishlisted) "❤️ Wishlisted" else "🤍 Wishlist")
-    }
 
     Card(
         modifier = Modifier
@@ -303,6 +289,27 @@ fun GameCard(game: Game) {
                     text = "⭐ ${game.rating}",
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        if (isWishlisted) {
+                            wishlistViewModel.removeWishlist(game.id)
+                        } else {
+                            wishlistViewModel.addWishlist(
+                                Wishlist(
+                                    gameId = game.id,
+                                    gameName = game.name,
+                                    genre = game.genre,
+                                    rating = game.rating,
+                                    imageResId = game.imageResId
+                                )
+                            )
+                        }
+                    }
+                ) {
+                    Text(if (isWishlisted) "❤️ Wishlisted" else "🤍 Wishlist")
+                }
             }
         }
     }

@@ -39,7 +39,7 @@ fun WishlistScreen(navController: NavController) {
     val viewModel: WishlistViewModel = viewModel(
         factory = ViewModelFactory(context)
     )
-    val wishlistItems by viewModel.wishlistItems.collectAsState(initial = emptyList())
+    val wishlistItems by viewModel.wishlistItem.collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
