@@ -22,11 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
@@ -61,7 +64,7 @@ fun SplashScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.game),
+            painter = painterResource(id = R.drawable.gamelogo),
             contentDescription = "Logo",
             modifier = Modifier.size(300.dp)
         )
@@ -70,7 +73,10 @@ fun SplashScreen(navController: NavController) {
 
         Text(
             text = stringResource(R.string.splash_desc),
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
+            color = Color(0xFF6015EB),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 2.sp,
             textAlign = TextAlign.Center
         )
 
@@ -88,7 +94,7 @@ fun SplashScreen(navController: NavController) {
                 Text(text = stringResource(R.string.login_google))
             }
         } else {
-            // Sudah login → tampilkan tombol Mulai + tombol profil
+
             Button(
                 onClick = {
                     navController.navigate(Screen.Input.route)

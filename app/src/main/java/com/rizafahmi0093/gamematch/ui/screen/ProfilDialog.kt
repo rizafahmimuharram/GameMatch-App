@@ -41,7 +41,7 @@ fun ProfilDialog(
     onChangeName: () -> Unit,
     onConfirmation: () -> Unit
 ) {
-    // tampilkan customName jika ada, fallback ke nama Google
+
     val displayName = if (user.customName.isNotEmpty()) user.customName else user.name
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
