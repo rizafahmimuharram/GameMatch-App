@@ -5,11 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.rizafahmi0093.gamematch.model.Match
+import com.rizafahmi0093.gamematch.model.Wishlist
 
-@Database(entities = [Match::class], version = 1)
+@Database(entities = [Match::class, Wishlist::class], version = 2)
 abstract class MatchDb : RoomDatabase() {
 
     abstract fun matchDao(): MatchDao
+    abstract fun wishlistDao(): WishlistDao
 
     companion object {
         @Volatile
@@ -21,7 +23,9 @@ abstract class MatchDb : RoomDatabase() {
                     context.applicationContext,
                     MatchDb::class.java,
                     "match.db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

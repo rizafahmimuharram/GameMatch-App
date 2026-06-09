@@ -16,6 +16,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.Game
 import com.rizafahmi0093.gamematch.model.User
+import com.rizafahmi0093.gamematch.model.Wishlist
 import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.UserDataStore
 import com.rizafahmi0093.gamematch.ui.components.GameMatchTopBar
@@ -62,6 +64,7 @@ fun ResultScreen(
     val user by userDataStore.userFlow.collectAsState(initial = User())
     var showDialog by remember { mutableStateOf(false) }
     var showEditName by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         viewModel.loadGames(
@@ -229,6 +232,28 @@ fun ResultScreen(
 
 @Composable
 fun GameCard(game: Game) {
+    val isWishlisted by wishlistViewModel.isWishlisted(game.id)
+        .collectAsState(initial = false)
+
+    OutlinedButton(
+        onClick = {
+            if (isWishlisted) {
+                wishlistViewModel.removeWishlist(game.id)
+            } else {
+                wishlistViewModel.addWishlist(
+                    Wishlist(
+                        gameId = game.id,
+                        gameName = game.name,
+                        genre = game.genre,
+                        rating = game.rating,
+                        imageResId = game.imageResId
+                    )
+                )
+            }
+        }
+    ) {
+        Text(if (isWishlisted) "❤️ Wishlisted" else "🤍 Wishlist")
+    }
 
     Card(
         modifier = Modifier

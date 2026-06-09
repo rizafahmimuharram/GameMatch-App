@@ -199,6 +199,13 @@ fun HomeScreen(
                         Text(text = "Trending Games")
                     }
 
+                    Button(
+                        onClick = { navController.navigate(Screen.Wishlist.route) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Wishlist Saya")
+                    }
+
                 }
 
                 1 -> {

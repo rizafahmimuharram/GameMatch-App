@@ -33,4 +33,6 @@ sealed class Screen(val route: String) {
     }
 
     object Trending : Screen("trending")
+
+    data object Wishlist : Screen("wishlist")
 }

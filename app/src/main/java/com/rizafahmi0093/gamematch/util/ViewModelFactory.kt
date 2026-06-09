@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.rizafahmi0093.gamematch.database.MatchDb
 import com.rizafahmi0093.gamematch.viewmodel.DetailViewModel
 import com.rizafahmi0093.gamematch.viewmodel.MainViewModel
+import com.rizafahmi0093.gamematch.viewmodel.WishlistViewModel
 
 class ViewModelFactory(
     private val context: Context
@@ -28,6 +29,9 @@ class ViewModelFactory(
                 DetailViewModel::class.java
             ) -> {
                 DetailViewModel(dao) as T
+            }
+            modelClass.isAssignableFrom(WishlistViewModel::class.java) -> {
+                WishlistViewModel(context) as T
             }
 
             else -> {

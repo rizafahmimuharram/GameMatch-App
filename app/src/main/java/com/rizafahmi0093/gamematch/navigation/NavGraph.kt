@@ -13,6 +13,7 @@
     import com.rizafahmi0093.gamematch.ui.screen.ResultScreen
     import com.rizafahmi0093.gamematch.ui.screen.SplashScreen
     import com.rizafahmi0093.gamematch.ui.screen.TrendingScreen
+    import com.rizafahmi0093.gamematch.ui.screen.WishlistScreen
 
     const val KEY_ID_MATCH = "idMatch"
 
@@ -122,6 +123,9 @@
 
             composable(Screen.Trending.route) {
                 TrendingScreen(navController)
+            }
+            composable(Screen.Wishlist.route) {
+                WishlistScreen(navController)
             }
         }
     }
