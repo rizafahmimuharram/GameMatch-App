@@ -163,10 +163,6 @@ fun MainScreen(navController: NavHostController) {
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
-            onChangeName = {
-                showDialog = false
-                showEditName = true
-            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
                     signOut(context, userDataStore)

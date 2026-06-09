@@ -46,7 +46,7 @@
                 val name =
                     backStackEntry.arguments?.getString("name") ?: ""
 
-                HomeScreen(navController, name)
+                HomeScreen(navController)
             }
 
             composable(

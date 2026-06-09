@@ -46,8 +46,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    name: String
+    navController: NavController
 ) {
     val context = LocalContext.current
     val userDataStore = UserDataStore(context)
@@ -146,7 +145,7 @@ fun HomeScreen(
                 Text(
                     text = stringResource(
                         R.string.greeting,
-                        name
+                        user.name
                     ),
                     style =
                         MaterialTheme.typography.titleMedium
@@ -342,10 +341,6 @@ fun HomeScreen(
         ProfilDialog(
             user = user,
             onDismissRequest = { showDialog = false },
-            onChangeName = {
-                showDialog = false
-                showEditName = true
-            },
             onConfirmation = {
                 CoroutineScope(Dispatchers.IO).launch {
                     signOut(context, userDataStore)

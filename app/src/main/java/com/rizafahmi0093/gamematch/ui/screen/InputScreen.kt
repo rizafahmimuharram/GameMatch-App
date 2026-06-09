@@ -23,7 +23,11 @@ import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
 import androidx.compose.runtime.collectAsState
 import com.rizafahmi0093.gamematch.model.User
+import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.UserDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,7 +95,10 @@ fun InputScreen(navController: NavController) {
                     Toast.makeText(context, "NAME IS REQUIRED!", Toast.LENGTH_LONG).show()
                     return@Button
                 }
-                navController.navigate("home/$name")
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataStore.updateName(name)
+                }
+                navController.navigate(Screen.Home.route)
             },
 
             shape = CutCornerShape(0.dp),
