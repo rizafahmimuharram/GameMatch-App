@@ -206,6 +206,13 @@ fun HomeScreen(
                         Text(text = "Wishlist Saya")
                     }
 
+                    Button(
+                        onClick = { navController.navigate(Screen.Feed.route) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Feed komunitas")
+                    }
+
                 }
 
                 1 -> {

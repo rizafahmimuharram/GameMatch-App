@@ -6,7 +6,9 @@
     import androidx.navigation.compose.composable
     import androidx.navigation.compose.rememberNavController
     import androidx.navigation.navArgument
+    import com.rizafahmi0093.gamematch.ui.screen.CreatePostScreen
     import com.rizafahmi0093.gamematch.ui.screen.DetailScreen
+    import com.rizafahmi0093.gamematch.ui.screen.FeedScreen
     import com.rizafahmi0093.gamematch.ui.screen.HomeScreen
     import com.rizafahmi0093.gamematch.ui.screen.InputScreen
     import com.rizafahmi0093.gamematch.ui.screen.MainScreen
@@ -126,6 +128,13 @@
             }
             composable(Screen.Wishlist.route) {
                 WishlistScreen(navController)
+            }
+
+            composable(Screen.Feed.route) {
+                FeedScreen(navController)
+            }
+            composable(Screen.CreatePost.route) {
+                CreatePostScreen(navController)
             }
         }
     }

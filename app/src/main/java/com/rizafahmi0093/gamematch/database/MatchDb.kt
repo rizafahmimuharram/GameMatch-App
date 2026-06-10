@@ -12,6 +12,7 @@ abstract class MatchDb : RoomDatabase() {
 
     abstract fun matchDao(): MatchDao
     abstract fun wishlistDao(): WishlistDao
+    abstract fun postDao(): PostDao
 
     companion object {
         @Volatile
