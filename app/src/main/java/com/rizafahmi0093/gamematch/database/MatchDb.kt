@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.rizafahmi0093.gamematch.model.Match
 import com.rizafahmi0093.gamematch.model.Wishlist
+import com.rizafahmi0093.gamematch.model.Post
 
-@Database(entities = [Match::class, Wishlist::class], version = 2)
+@Database(entities = [Match::class, Wishlist::class, Post::class], version = 3)
 abstract class MatchDb : RoomDatabase() {
 
     abstract fun matchDao(): MatchDao
