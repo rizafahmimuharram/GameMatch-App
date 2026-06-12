@@ -130,12 +130,11 @@ fun CreatePostScreen(navController: NavController) {
                         captionError = true
                         return@Button
                     }
-                    postViewModel.addPost(
-                        Post(
-                            userName = user.name,
-                            caption = caption,
-                            imageUri = imageUri?.toString() ?: ""
-                        )
+                    postViewModel.createPost(
+                        userEmail = user.email,
+                        userName = user.name,
+                        caption = caption,
+                        imageUri = imageUri
                     )
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Feed.route) { inclusive = true }

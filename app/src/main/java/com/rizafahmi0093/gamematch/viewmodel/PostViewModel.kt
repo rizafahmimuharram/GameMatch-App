@@ -1,31 +1,102 @@
 package com.rizafahmi0093.gamematch.viewmodel
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rizafahmi0093.gamematch.database.MatchDb
-import com.rizafahmi0093.gamematch.model.Post
+import com.rizafahmi0093.gamematch.model.PostRequest
+import com.rizafahmi0093.gamematch.model.PostResponse
+import com.rizafahmi0093.gamematch.network.ApiStatus
+import com.rizafahmi0093.gamematch.network.SupabaseApi
+import com.rizafahmi0093.gamematch.network.SupabaseStorage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
-class PostViewModel(context: Context) : ViewModel() {
-    private val dao = MatchDb.getInstance(context).postDao()
+class PostViewModel(private val context: Context) : ViewModel() {
 
-    val allPosts: Flow<List<Post>> = dao.getAll()
+    var posts = MutableStateFlow<List<PostResponse>>(emptyList())
+        private set
 
-    fun getPostsByUser(userName: String): Flow<List<Post>> = dao.getByUser(userName)
+    var status = MutableStateFlow(ApiStatus.LOADING)
+        private set
 
-    fun addPost(post: Post) {
+    var errorMessage = mutableStateOf<String?>(null)
+        private set
+
+    init {
+        loadPosts()
+    }
+
+    fun loadPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.insert(post)
+            status.value = ApiStatus.LOADING
+            try {
+                posts.value = SupabaseApi.service.getPosts()
+                status.value = ApiStatus.SUCCESS
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Error: ${e.message}")
+                status.value = ApiStatus.FAILED
+            }
         }
     }
 
-    fun deletePost(post: Post) {
+    fun createPost(
+        userEmail: String,
+        userName: String,
+        caption: String,
+        imageUri: Uri?
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.delete(post)
-        }
+            try {
+                // upload gambar dulu kalau ada
+                val imageUrl = if (imageUri != null) {
+                    val bytes = context.contentResolver
+                        .openInputStream(imageUri)?.readBytes() ?: byteArrayOf()
+                    val fileName = "${UUID.randomUUID()}.jpg"
+                    SupabaseStorage.uploadImage(bytes, fileName)
+                } else ""
 
+                // kirim post ke Supabase
+                SupabaseApi.service.createPost(
+                    PostRequest(
+                        userEmail = userEmail,
+                        userName = userName,
+                        caption = caption,
+                        imageUrl = imageUrl
+                    )
+                )
+                // auto-refresh
+                loadPosts()
+
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Error: ${e.message}")
+                errorMessage.value = "Gagal posting: ${e.message}"
+            }
+        }
+    }
+
+    fun deletePost(postId: Long, userEmail: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                SupabaseApi.service.deletePost(
+                    id = "eq.$postId",
+                    userEmail = "eq.$userEmail"
+                )
+                // auto-refresh
+                loadPosts()
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Delete error: ${e.message}")
+            }
+        }
+    }
+
+    fun clearError() {
+        errorMessage.value = null
     }
 }

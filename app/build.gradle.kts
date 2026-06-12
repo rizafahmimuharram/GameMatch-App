@@ -30,6 +30,14 @@ android {
         buildConfigField(
             "String", "WEB_CLIENT_ID", properties.getProperty("WEB_CLIENT_ID")
         )
+
+        buildConfigField(
+            "String", "SUPABASE_URL", properties.getProperty("SUPABASE_URL")
+        )
+        buildConfigField(
+            "String", "SUPABASE_KEY", properties.getProperty("SUPABASE_KEY")
+        )
+
     }
 
     buildTypes {
@@ -71,6 +79,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     testImplementation(libs.junit)

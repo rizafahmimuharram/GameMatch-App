@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.rizafahmi0093.gamematch.model.Post
+import com.rizafahmi0093.gamematch.model.PostResponse
 import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.UserDataStore
@@ -40,7 +42,8 @@ fun FeedScreen(navController: NavController) {
     var showEditName by remember { mutableStateOf(false) }
 
     val postViewModel: PostViewModel = viewModel(factory = ViewModelFactory(context))
-    val posts by postViewModel.allPosts.collectAsState(initial = emptyList())
+    val posts by postViewModel.posts.collectAsState()
+    val status by postViewModel.status.collectAsState()
 
     Scaffold(
         topBar = {
@@ -90,7 +93,13 @@ fun FeedScreen(navController: NavController) {
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 items(posts) { post ->
-                    PostCard(post = post)
+                    PostCard(
+                        post = post,
+                        currentUserEmail = user.email,
+                        onDelete = {
+                            postViewModel.deletePost(post.id, user.email)
+                        }
+                    )
                 }
             }
         }
@@ -127,7 +136,13 @@ fun FeedScreen(navController: NavController) {
 }
 
 @Composable
-fun PostCard(post: Post) {
+fun PostCard(
+    post: PostResponse,
+    currentUserEmail: String,
+    onDelete: () -> Unit
+) {
+    var showConfirmDelete by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,10 +150,9 @@ fun PostCard(post: Post) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            // gambar kalau ada
-            if (post.imageUri.isNotEmpty()) {
+            if (post.imageUrl.isNotEmpty()) {
                 AsyncImage(
-                    model = post.imageUri,
+                    model = post.imageUrl,
                     contentDescription = "Screenshot gameplay",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -147,26 +161,60 @@ fun PostCard(post: Post) {
                 )
             }
             Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = post.userName,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = post.userName,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    // tombol hapus hanya muncul untuk post milik sendiri
+                    if (post.userEmail == currentUserEmail) {
+                        IconButton(onClick = { showConfirmDelete = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Hapus",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = post.caption)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = post.caption,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = SimpleDateFormat(
-                        "dd MMM yyyy, HH:mm",
-                        Locale.getDefault()
-                    ).format(Date(post.timestamp)),
+                    text = post.createdAt.take(10),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
         }
+    }
+
+    // dialog konfirmasi hapus
+    if (showConfirmDelete) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDelete = false },
+            title = { Text("Hapus Postingan") },
+            text = { Text("Yakin ingin menghapus postingan ini?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                        showConfirmDelete = false
+                    }
+                ) {
+                    Text("Hapus", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDelete = false }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 }
