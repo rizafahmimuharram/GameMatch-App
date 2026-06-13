@@ -21,7 +21,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.rizafahmi0093.gamematch.R
-import com.rizafahmi0093.gamematch.model.Post
 import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.navigation.Screen
 import com.rizafahmi0093.gamematch.network.UserDataStore
@@ -41,108 +40,131 @@ fun CreatePostScreen(navController: NavController) {
     var caption by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var captionError by remember { mutableStateOf(false) }
+    var isUploading by remember { mutableStateOf(false) }          // ← state loading
+    var uploadProgress by remember { mutableStateOf("") }         // ← pesan progress
 
-    // image picker dari galeri
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
+    ) { uri: Uri? -> imageUri = uri }
+
+    // observe uploadSuccess dari ViewModel → navigate kalau berhasil
+    val uploadSuccess by postViewModel.uploadSuccess.collectAsState()
+    LaunchedEffect(uploadSuccess) {
+        if (uploadSuccess) {
+            postViewModel.resetUploadSuccess()
+            navController.navigate(Screen.Feed.route) {
+                popUpTo(Screen.Feed.route) { inclusive = true }
+            }
+        }
     }
 
     Scaffold(
         topBar = {
             GameMatchTopBar(
                 title = "Buat Postingan",
-                showBackButton = true,
+                showBackButton = !isUploading,  // nonaktifkan back saat upload
                 onBackClick = { navController.popBackStack() },
                 onProfilClick = {}
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // area upload gambar
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline,
-                        RoundedCornerShape(12.dp)
-                    )
-                    .clickable { launcher.launch("image/*") },
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (imageUri != null) {
-                    AsyncImage(
-                        model = imageUri,
-                        contentDescription = "Screenshot gameplay",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.baseline_broken_image_24),
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp)
+                // area upload gambar
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+                        .clickable(enabled = !isUploading) { launcher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = "Screenshot gameplay",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
-                        Text(
-                            text = "Tap untuk upload screenshot gameplay",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.baseline_broken_image_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Text(
+                                text = "Tap untuk upload screenshot gameplay",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
                     }
                 }
-            }
 
+                OutlinedTextField(
+                    value = caption,
+                    onValueChange = {
+                        caption = it
+                        captionError = false
+                    },
+                    label = { Text("Caption") },
+                    placeholder = { Text("Ceritakan pengalaman bermain kamu...") },
+                    isError = captionError,
+                    supportingText = {
+                        if (captionError) Text("Caption tidak boleh kosong")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 4,
+                    enabled = !isUploading
+                )
 
-            OutlinedTextField(
-                value = caption,
-                onValueChange = {
-                    caption = it
-                    captionError = false
-                },
-                label = { Text("Caption") },
-                placeholder = { Text("Ceritakan pengalaman bermain kamu...") },
-                isError = captionError,
-                supportingText = {
-                    if (captionError) Text("Caption tidak boleh kosong")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 4
-            )
+                Button(
+                    onClick = {
+                        if (caption.isEmpty()) {
+                            captionError = true
+                            return@Button
+                        }
+                        isUploading = true
+                        uploadProgress = if (imageUri != null)
+                            "Mengupload gambar..." else "Menyimpan postingan..."
 
-
-            Button(
-                onClick = {
-                    if (caption.isEmpty()) {
-                        captionError = true
-                        return@Button
+                        postViewModel.createPost(
+                            userEmail = user.email,
+                            userName = user.name,
+                            caption = caption,
+                            imageUri = imageUri
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isUploading
+                ) {
+                    if (isUploading) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Text(uploadProgress)
+                        }
+                    } else {
+                        Text("Posting")
                     }
-                    postViewModel.createPost(
-                        userEmail = user.email,
-                        userName = user.name,
-                        caption = caption,
-                        imageUri = imageUri
-                    )
-                    navController.navigate(Screen.Feed.route) {
-                        popUpTo(Screen.Feed.route) { inclusive = true }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Posting")
+                }
             }
         }
     }

@@ -29,6 +29,13 @@ class PostViewModel(private val context: Context) : ViewModel() {
 
     var errorMessage = mutableStateOf<String?>(null)
         private set
+    var uploadSuccess = MutableStateFlow(false)
+        private set
+
+    fun resetUploadSuccess() {
+        uploadSuccess.value = false
+    }
+
 
     init {
         loadPosts()
@@ -55,14 +62,12 @@ class PostViewModel(private val context: Context) : ViewModel() {
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // upload gambar dulu kalau ada
                 val imageUrl = if (imageUri != null) {
                     val bytes = context.contentResolver
                         .openInputStream(imageUri)?.readBytes() ?: byteArrayOf()
                     val fileName = "${UUID.randomUUID()}.jpg"
                     SupabaseStorage.uploadImage(bytes, fileName)
                 } else ""
-
 
                 SupabaseApi.service.createPost(
                     PostRequest(
@@ -72,9 +77,8 @@ class PostViewModel(private val context: Context) : ViewModel() {
                         imageUrl = imageUrl
                     )
                 )
-                // auto-refresh
                 loadPosts()
-
+                uploadSuccess.value = true    // ← trigger navigate
             } catch (e: Exception) {
                 Log.e("PostViewModel", "Error: ${e.message}")
                 errorMessage.value = "Gagal posting: ${e.message}"
