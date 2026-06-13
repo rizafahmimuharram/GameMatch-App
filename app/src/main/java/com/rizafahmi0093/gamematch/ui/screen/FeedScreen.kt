@@ -171,7 +171,7 @@ fun PostCard(
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    // tombol hapus hanya muncul untuk post milik sendiri
+
                     if (post.userEmail == currentUserEmail) {
                         IconButton(onClick = { showConfirmDelete = true }) {
                             Icon(

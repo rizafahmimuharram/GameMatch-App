@@ -5,9 +5,11 @@ import com.rizafahmi0093.gamematch.model.PostRequest
 import com.rizafahmi0093.gamematch.model.PostResponse
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
@@ -63,10 +65,8 @@ object SupabaseStorage {
         fileName: String
     ): String {
         val client = OkHttpClient()
-        val requestBody = RequestBody.create(
-            okhttp3.MediaType.parse("image/jpeg"),
-            imageBytes
-        )
+        val requestBody = imageBytes.toRequestBody("image/jpeg".toMediaType())
+
         val request = okhttp3.Request.Builder()
             .url("${BuildConfig.SUPABASE_URL}/storage/v1/object/post-images/$fileName")
             .addHeader("apikey", BuildConfig.SUPABASE_KEY)

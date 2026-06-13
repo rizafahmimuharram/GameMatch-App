@@ -27,16 +27,13 @@ android {
         properties.load(
             project.rootProject.file("local.properties").inputStream()
         )
-        buildConfigField(
-            "String", "WEB_CLIENT_ID", properties.getProperty("WEB_CLIENT_ID")
-        )
 
-        buildConfigField(
-            "String", "SUPABASE_URL", properties.getProperty("SUPABASE_URL")
-        )
-        buildConfigField(
-            "String", "SUPABASE_KEY", properties.getProperty("SUPABASE_KEY")
-        )
+        val webClientId = properties.getProperty("WEB_CLIENT_ID")
+        val supabaseKey = properties.getProperty("SUPABASE_KEY")
+
+        buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
+        buildConfigField("String", "SUPABASE_URL", "\"https://ownqsjujngsfrkhwwucy.supabase.co\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"$supabaseKey\"")
 
     }
 
