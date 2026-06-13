@@ -12,6 +12,7 @@
     import com.rizafahmi0093.gamematch.ui.screen.HomeScreen
     import com.rizafahmi0093.gamematch.ui.screen.InputScreen
     import com.rizafahmi0093.gamematch.ui.screen.MainScreen
+    import com.rizafahmi0093.gamematch.ui.screen.ProfileScreen
     import com.rizafahmi0093.gamematch.ui.screen.ResultScreen
     import com.rizafahmi0093.gamematch.ui.screen.SplashScreen
     import com.rizafahmi0093.gamematch.ui.screen.TrendingScreen
@@ -136,5 +137,9 @@
             composable(Screen.CreatePost.route) {
                 CreatePostScreen(navController)
             }
+            composable(Screen.Profile.route) {
+                ProfileScreen(navController)
+            }
+
         }
     }

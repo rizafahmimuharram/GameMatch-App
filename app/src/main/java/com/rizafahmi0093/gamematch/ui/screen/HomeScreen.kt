@@ -4,13 +4,26 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -26,8 +39,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
@@ -141,17 +156,24 @@ fun HomeScreen(
                 Arrangement.Top
         ) {
             if (currentStep == 0) {
-
-                Text(
-                    text = stringResource(
-                        R.string.greeting,
-                        user.name
-                    ),
-                    style =
-                        MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    RoundedCornerShape(16.dp),
+                    CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Selamat datang kembali",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Hello, ${user.name} 👾",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
 
             }
             when (currentStep) {
@@ -177,40 +199,32 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedButton(
-                        onClick = {
-                            navController.navigate(Screen.Main.route)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.history)
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = {
-                            navController.navigate(Screen.Trending.route)
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.height(180.dp)
                     ) {
-                        Text(text = "Trending Games")
-                    }
-
-                    Button(
-                        onClick = { navController.navigate(Screen.Wishlist.route) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Wishlist Saya")
+                        item {
+                            MenuCard(icon = Icons.Default.Whatshot, label = "Trending", sub = "Game terpopuler") { navController.navigate(Screen.Trending.route) }
+                        }
+                        item {
+                            MenuCard(icon = Icons.Default.Favorite, label = "Wishlist", sub = "Simpanan kamu") { navController.navigate(Screen.Wishlist.route) }
+                        }
+                        item {
+                            MenuCard(icon = Icons.Default.People, label = "Feed", sub = "Komunitas") { navController.navigate(Screen.Feed.route) }
+                        }
+                        item {
+                            MenuCard(icon = Icons.Default.History, label = "Riwayat", sub = "pertandingan lalu") { navController.navigate(Screen.Main.route) }
+                        }
                     }
 
                     Button(
-                        onClick = { navController.navigate(Screen.Feed.route) },
+                        onClick = { navController.navigate(Screen.Profile.route) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "Feed komunitas")
+                        Text(text = "Profil")
                     }
 
                 }
@@ -363,7 +377,9 @@ fun HomeScreen(
                     popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
-            }
+            },
+            onProfileClick = { navController.navigate(Screen.Profile.route) }
+
         )
     }
 
@@ -407,5 +423,37 @@ fun SelectionCard(label: String, isSelected: Boolean, onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+fun MenuCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    sub: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Column {
+                Text(text = label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Text(text = sub, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
     }
 }

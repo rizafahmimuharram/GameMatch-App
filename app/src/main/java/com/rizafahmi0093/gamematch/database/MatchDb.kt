@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.rizafahmi0093.gamematch.model.Comment
 import com.rizafahmi0093.gamematch.model.Match
 import com.rizafahmi0093.gamematch.model.Wishlist
 import com.rizafahmi0093.gamematch.model.Post
 import com.rizafahmi0093.gamematch.model.Review
 
-@Database(entities = [Match::class, Wishlist::class, Post::class, Review::class], version = 4)
+@Database(entities = [Match::class, Wishlist::class, Post::class, Review::class, Comment::class], version = 5)
 abstract class MatchDb : RoomDatabase() {
 
     abstract fun matchDao(): MatchDao
@@ -17,6 +18,8 @@ abstract class MatchDb : RoomDatabase() {
     abstract fun postDao(): PostDao
 
     abstract fun reviewDao(): ReviewDao
+
+    abstract fun commentDao(): CommentDao
 
     companion object {
         @Volatile

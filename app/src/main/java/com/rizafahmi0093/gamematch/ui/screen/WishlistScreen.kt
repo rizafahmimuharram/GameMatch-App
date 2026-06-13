@@ -92,7 +92,8 @@ fun WishlistScreen(navController: NavController) {
                     popUpTo(0) { inclusive = true }
                 }
                 showDialog = false
-            }
+            },
+            onProfileClick = { navController.navigate(Screen.Profile.route) }
         )
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -38,7 +39,8 @@ import com.rizafahmi0093.gamematch.ui.theme.GameMatchTheme
 fun ProfilDialog(
     user: User,
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit
+    onConfirmation: () -> Unit,
+    onProfileClick: () -> Unit = {}
 ) {
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -84,6 +86,14 @@ fun ProfilDialog(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+
+                    Button(
+                        onClick = { onDismissRequest(); onProfileClick() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Lihat Profil")
+                    }
+
                     OutlinedButton(
                         onClick = { onConfirmation() },
                         modifier = Modifier.fillMaxWidth(),

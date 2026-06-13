@@ -38,4 +38,9 @@ sealed class Screen(val route: String) {
 
     data object Feed : Screen("feed")
     data object CreatePost : Screen("createPost")
+
+    data object Profile : Screen("profile")
+    data object PostDetail : Screen("postDetail/{postId}") {
+        fun withId(id: Long) = "postDetail/$id"
+    }
 }

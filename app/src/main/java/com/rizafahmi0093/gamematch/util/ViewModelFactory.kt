@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.rizafahmi0093.gamematch.database.MatchDb
+import com.rizafahmi0093.gamematch.viewmodel.CommentViewModel
 import com.rizafahmi0093.gamematch.viewmodel.DetailViewModel
 import com.rizafahmi0093.gamematch.viewmodel.MainViewModel
 import com.rizafahmi0093.gamematch.viewmodel.PostViewModel
@@ -42,6 +43,9 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(ReviewViewModel::class.java) -> {
                 ReviewViewModel(context) as T
+            }
+            modelClass.isAssignableFrom(CommentViewModel::class.java) -> {
+                CommentViewModel(context) as T
             }
 
 

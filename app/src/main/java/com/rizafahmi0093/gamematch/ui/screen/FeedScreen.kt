@@ -32,6 +32,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import com.rizafahmi0093.gamematch.network.ApiStatus
+import androidx.compose.material.icons.filled.Send
+import com.rizafahmi0093.gamematch.model.Comment
+import com.rizafahmi0093.gamematch.viewmodel.CommentViewModel
 
 
 
@@ -167,7 +170,17 @@ fun PostCard(
     currentUserEmail: String,
     onDelete: () -> Unit
 ) {
+    val context = LocalContext.current
+    val commentViewModel: CommentViewModel = viewModel(factory = ViewModelFactory(context))
+    val comments by commentViewModel.getCommentsByPost(post.id)
+        .collectAsState(initial = emptyList())
+    val userDataStore = UserDataStore(context)
+    val user by userDataStore.userFlow.collectAsState(initial = User())
+
     var showConfirmDelete by remember { mutableStateOf(false) }
+    var showComments by remember { mutableStateOf(false) }
+    var commentText by remember { mutableStateOf("") }
+    var commentError by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -181,9 +194,7 @@ fun PostCard(
                     model = post.imageUrl,
                     contentDescription = "Screenshot gameplay",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
+                    modifier = Modifier.fillMaxWidth().height(200.dp)
                 )
             }
             Column(modifier = Modifier.padding(12.dp)) {
@@ -197,7 +208,6 @@ fun PostCard(
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
                     )
-
                     if (post.userEmail == currentUserEmail) {
                         IconButton(onClick = { showConfirmDelete = true }) {
                             Icon(
@@ -216,23 +226,97 @@ fun PostCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
+
+                // tombol komentar
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    onClick = { showComments = !showComments }
+                ) {
+                    Text(
+                        if (showComments) "Sembunyikan komentar"
+                        else "💬 ${comments.size} Komentar"
+                    )
+                }
+
+                // section komentar
+                if (showComments) {
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // list komentar
+                    comments.forEach { comment ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = comment.userName,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = comment.commentText,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // input komentar baru
+                    OutlinedTextField(
+                        value = commentText,
+                        onValueChange = {
+                            commentText = it
+                            commentError = false
+                        },
+                        label = { Text("Tulis komentar") },
+                        placeholder = { Text("Game ini bagus...") },
+                        isError = commentError,
+                        supportingText = {
+                            if (commentError) Text("Komentar tidak boleh kosong")
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    if (commentText.isEmpty()) {
+                                        commentError = true
+                                        return@IconButton
+                                    }
+                                    commentViewModel.addComment(
+                                        Comment(
+                                            postId = post.id,
+                                            userName = user.name,
+                                            commentText = commentText
+                                        )
+                                    )
+                                    commentText = ""
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = "Kirim"
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 
-    // dialog konfirmasi hapus
     if (showConfirmDelete) {
         AlertDialog(
             onDismissRequest = { showConfirmDelete = false },
             title = { Text("Hapus Postingan") },
             text = { Text("Yakin ingin menghapus postingan ini?") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showConfirmDelete = false
-                    }
-                ) {
+                TextButton(onClick = { onDelete(); showConfirmDelete = false }) {
                     Text("Hapus", color = MaterialTheme.colorScheme.error)
                 }
             },
