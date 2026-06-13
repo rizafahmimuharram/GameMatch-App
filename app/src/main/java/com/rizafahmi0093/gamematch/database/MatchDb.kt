@@ -7,13 +7,16 @@ import androidx.room.RoomDatabase
 import com.rizafahmi0093.gamematch.model.Match
 import com.rizafahmi0093.gamematch.model.Wishlist
 import com.rizafahmi0093.gamematch.model.Post
+import com.rizafahmi0093.gamematch.model.Review
 
-@Database(entities = [Match::class, Wishlist::class, Post::class], version = 3)
+@Database(entities = [Match::class, Wishlist::class, Post::class, Review::class], version = 4)
 abstract class MatchDb : RoomDatabase() {
 
     abstract fun matchDao(): MatchDao
     abstract fun wishlistDao(): WishlistDao
     abstract fun postDao(): PostDao
+
+    abstract fun reviewDao(): ReviewDao
 
     companion object {
         @Volatile

@@ -8,6 +8,7 @@ import com.rizafahmi0093.gamematch.viewmodel.DetailViewModel
 import com.rizafahmi0093.gamematch.viewmodel.MainViewModel
 import com.rizafahmi0093.gamematch.viewmodel.PostViewModel
 import com.rizafahmi0093.gamematch.viewmodel.WishlistViewModel
+import com.rizafahmi0093.gamematch.viewmodel.ReviewViewModel
 
 
 class ViewModelFactory(
@@ -39,6 +40,10 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(PostViewModel::class.java) -> {
                 PostViewModel(context) as T
             }
+            modelClass.isAssignableFrom(ReviewViewModel::class.java) -> {
+                ReviewViewModel(context) as T
+            }
+
 
             else -> {
                 throw IllegalArgumentException(

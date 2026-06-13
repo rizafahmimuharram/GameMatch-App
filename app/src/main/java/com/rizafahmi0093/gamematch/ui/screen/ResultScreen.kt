@@ -2,8 +2,10 @@ package com.rizafahmi0093.gamematch.ui.screen
 
 import android.content.Intent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.rizafahmi0093.gamematch.R
 import com.rizafahmi0093.gamematch.model.Game
+import com.rizafahmi0093.gamematch.model.Review
 import com.rizafahmi0093.gamematch.model.User
 import com.rizafahmi0093.gamematch.model.Wishlist
 import com.rizafahmi0093.gamematch.navigation.Screen
@@ -48,6 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.rizafahmi0093.gamematch.util.ViewModelFactory
+import com.rizafahmi0093.gamematch.viewmodel.ReviewViewModel
 import com.rizafahmi0093.gamematch.viewmodel.WishlistViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -63,6 +67,9 @@ fun ResultScreen(
     val context = LocalContext.current
     val viewModel: GameViewModel = viewModel()
     val wishlistViewModel: WishlistViewModel = viewModel(
+        factory = ViewModelFactory(context)
+    )
+    val reviewViewModel: ReviewViewModel = viewModel(
         factory = ViewModelFactory(context)
     )
     val userDataStore = UserDataStore(context)
@@ -132,14 +139,16 @@ fun ResultScreen(
             }
 
             items(games) { game ->
-
-                GameCard(game, wishlistViewModel)
+                GameCard(
+                    game = game,
+                    wishlistViewModel = wishlistViewModel,
+                    reviewViewModel = reviewViewModel,
+                    userName = user.name
+                )
             }
 
             item {
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 Button(
                     onClick = {
 
@@ -236,67 +245,58 @@ fun ResultScreen(
 }
 
 @Composable
-fun GameCard(game: Game, wishlistViewModel: WishlistViewModel) {
+fun GameCard(
+    game: Game,
+    wishlistViewModel: WishlistViewModel,
+    reviewViewModel: ReviewViewModel,
+    userName: String
+) {
     val isWishlisted by wishlistViewModel.isWishlisted(game.id)
         .collectAsState(initial = false)
+    val reviews by reviewViewModel.getReviewsByGame(game.id)
+        .collectAsState(initial = emptyList())
 
+    var showReviewDialog by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-
         Column {
-
             Image(
-                painter = painterResource(
-                    id = game.imageResId
-                ),
-
+                painter = painterResource(id = game.imageResId),
                 contentDescription = game.name,
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-
+                modifier = Modifier.fillMaxWidth().height(180.dp),
                 contentScale = ContentScale.Crop
             )
-
-            Column(
-                modifier = Modifier.padding(12.dp)
-            ) {
-
-                Text(
-                    text = game.name,
-                    style = MaterialTheme.typography.titleLarge
-                )
-
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(text = game.name, style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text("Genre: ${game.genre}")
                 Text("Mood: ${game.mood}")
                 Text("Platform: ${game.platforms.joinToString()}")
                 Text("Mode: ${game.modes.joinToString()}")
-
                 Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "⭐ ${game.rating}", style = MaterialTheme.typography.bodyMedium)
 
-                Text(
-                    text = "⭐ ${game.rating}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                // tampilkan jumlah review
+                if (reviews.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${reviews.size} review • Avg: ${"%.1f".format(reviews.map { it.rating }.average())}⭐",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedButton(
-                    onClick = {
-                        if (isWishlisted) {
-                            wishlistViewModel.removeWishlist(game.id)
-                        } else {
-                            wishlistViewModel.addWishlist(
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                    OutlinedButton(
+                        onClick = {
+                            if (isWishlisted) wishlistViewModel.removeWishlist(game.id)
+                            else wishlistViewModel.addWishlist(
                                 Wishlist(
                                     gameId = game.id,
                                     gameName = game.name,
@@ -305,12 +305,40 @@ fun GameCard(game: Game, wishlistViewModel: WishlistViewModel) {
                                     imageResId = game.imageResId
                                 )
                             )
-                        }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(if (isWishlisted) "❤️ Wishlisted" else "Wishlist")
                     }
-                ) {
-                    Text(if (isWishlisted) "❤️ Wishlisted" else "🤍 Wishlist")
+
+
+                    OutlinedButton(
+                        onClick = { showReviewDialog = true },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Review")
+                    }
                 }
             }
         }
+    }
+
+    if (showReviewDialog) {
+        ReviewDialog(
+            gameName = game.name,
+            onDismiss = { showReviewDialog = false },
+            onSubmit = { reviewText, rating ->
+                reviewViewModel.addReview(
+                    Review(
+                        gameId = game.id,
+                        gameName = game.name,
+                        userName = userName,
+                        reviewText = reviewText,
+                        rating = rating
+                    )
+                )
+                showReviewDialog = false
+            }
+        )
     }
 }
