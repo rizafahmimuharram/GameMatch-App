@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rizafahmi0093.gamematch.BuildConfig
 import com.rizafahmi0093.gamematch.model.PostRequest
 import com.rizafahmi0093.gamematch.model.PostResponse
 import com.rizafahmi0093.gamematch.network.SupabaseApi
@@ -45,7 +46,9 @@ class PostViewModel(private val context: Context) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = ApiStatus.LOADING
             try {
-                posts.value = SupabaseApi.service.getPosts()
+                posts.value = SupabaseApi.service.getPosts(
+                    token = "Bearer ${BuildConfig.SUPABASE_KEY}"
+                )
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e("PostViewModel", "Error: ${e.message}")
