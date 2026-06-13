@@ -1,6 +1,7 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
 import androidx.compose.foundation.layout.*
+import com.rizafahmi0093.gamematch.ui.screen.ApiStatus
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,46 +68,69 @@ fun FeedScreen(navController: NavController) {
             }
         }
     ) { padding ->
-        if (posts.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "Belum ada postingan",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Jadilah yang pertama posting!",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
+        when (status) {
+            ApiStatus.LOADING -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(bottom = 80.dp)
-            ) {
-                items(posts) { post ->
-                    PostCard(
-                        post = post,
-                        currentUserEmail = user.email,
-                        onDelete = {
-                            postViewModel.deletePost(post.id, user.email)
+            ApiStatus.FAILED -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Gagal memuat feed")
+                    Button(
+                        onClick = { postViewModel.loadPosts() },
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text("Coba lagi")
+                    }
+                }
+            }
+            ApiStatus.SUCCESS -> {
+                if (posts.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Belum ada postingan")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Jadilah yang pertama posting!",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
                         }
-                    )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentPadding = PaddingValues(bottom = 80.dp)
+                    ) {
+                        items(posts) { post ->
+                            PostCard(
+                                post = post,
+                                currentUserEmail = user.email,
+                                onDelete = {
+                                    postViewModel.deletePost(post.id, user.email)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
-
     if (showDialog) {
         ProfilDialog(
             user = user,

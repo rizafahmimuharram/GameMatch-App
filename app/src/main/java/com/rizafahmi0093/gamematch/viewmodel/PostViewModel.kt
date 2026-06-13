@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rizafahmi0093.gamematch.model.PostRequest
 import com.rizafahmi0093.gamematch.model.PostResponse
-import com.rizafahmi0093.gamematch.network.ApiStatus
 import com.rizafahmi0093.gamematch.network.SupabaseApi
 import com.rizafahmi0093.gamematch.network.SupabaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
+import com.rizafahmi0093.gamematch.ui.screen.ApiStatus
+
 
 class PostViewModel(private val context: Context) : ViewModel() {
 
@@ -62,7 +63,7 @@ class PostViewModel(private val context: Context) : ViewModel() {
                     SupabaseStorage.uploadImage(bytes, fileName)
                 } else ""
 
-                // kirim post ke Supabase
+
                 SupabaseApi.service.createPost(
                     PostRequest(
                         userEmail = userEmail,
