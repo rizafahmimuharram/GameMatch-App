@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
-import com.rizafahmi0093.gamematch.ui.screen.ApiStatus
+import com.rizafahmi0093.gamematch.network.ApiStatus
 
 
 class PostViewModel(private val context: Context) : ViewModel() {

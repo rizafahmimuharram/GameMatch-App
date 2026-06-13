@@ -28,5 +28,3 @@ object TrendingApi {
         retrofit.create(TrendingApiService::class.java)
     }
 }
-
-enum class ApiStatus { LOADING, SUCCESS, FAILED }

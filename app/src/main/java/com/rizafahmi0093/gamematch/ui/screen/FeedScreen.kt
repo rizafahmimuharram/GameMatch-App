@@ -1,7 +1,6 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
 import androidx.compose.foundation.layout.*
-import com.rizafahmi0093.gamematch.ui.screen.ApiStatus
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -32,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import com.rizafahmi0093.gamematch.network.ApiStatus
 
 
 
