@@ -41,7 +41,6 @@ interface SupabaseApiService {
 
     @GET("posts")
     suspend fun getPosts(
-        @Header("Authorization") token: String,
         @Query("order") order: String = "created_at.desc"
     ): List<PostResponse>
 

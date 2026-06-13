@@ -46,9 +46,7 @@ class PostViewModel(private val context: Context) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = ApiStatus.LOADING
             try {
-                posts.value = SupabaseApi.service.getPosts(
-                    token = "Bearer ${BuildConfig.SUPABASE_KEY}"
-                )
+                posts.value = SupabaseApi.service.getPosts()
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e("PostViewModel", "Error: ${e.message}")
