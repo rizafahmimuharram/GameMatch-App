@@ -73,7 +73,7 @@ fun CreatePostScreen(navController: NavController) {
         topBar = {
             GameMatchTopBar(
                 title = "Buat Postingan",
-                showBackButton = !isUploading,  // nonaktifkan back saat upload
+                showBackButton = !isUploading,
                 onBackClick = { navController.popBackStack() },
                 onProfilClick = {}
             )
@@ -87,7 +87,6 @@ fun CreatePostScreen(navController: NavController) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // area upload gambar
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

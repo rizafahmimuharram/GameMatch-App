@@ -17,7 +17,7 @@ class ReviewViewModel(context: Context) : ViewModel() {
 
     fun getReviewsByGame(gameId: Int): Flow<List<Review>> = dao.getByGame(gameId)
 
-    fun getReviewsByUser(userName: String): Flow<List<Review>> = dao.getByUser(userName)
+    fun getReviewsByEmail(userEmail: String): Flow<List<Review>> = dao.getByUser(userEmail)
 
     fun addReview(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {

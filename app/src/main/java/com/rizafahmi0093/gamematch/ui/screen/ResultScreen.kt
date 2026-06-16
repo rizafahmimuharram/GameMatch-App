@@ -53,6 +53,21 @@ import kotlinx.coroutines.launch
 import com.rizafahmi0093.gamematch.util.ViewModelFactory
 import com.rizafahmi0093.gamematch.viewmodel.ReviewViewModel
 import com.rizafahmi0093.gamematch.viewmodel.WishlistViewModel
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -77,19 +92,10 @@ fun ResultScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showEditName by remember { mutableStateOf(false) }
 
-
     LaunchedEffect(Unit) {
-        viewModel.loadGames(
-            genre,
-            mood,
-            platform,
-            rating,
-            mode
-        )
+        viewModel.loadGames(genre, mood, platform, rating, mode)
     }
-    val games by viewModel.recommendedGames
-        .collectAsStateWithLifecycle()
-
+    val games by viewModel.recommendedGames.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -101,40 +107,60 @@ fun ResultScreen(
             )
         }
     ) { paddingValues ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-
             item {
+                // Header Section yang Lebih Bersih
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Text(
+                        text = "Rekomendasi Game Untukmu",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "Berdasarkan preferensi dan mood gaming kamu saat ini.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
-                Text(
-                    text = "Rekomendasi Game Untuk Kamu",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // Kategori Filter dalam Bentuk FlowRow yang Modern (Bukan Text Menumpuk Biasa)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    SuggestionChip(onClick = {}, label = { Text("Genre: $genre") })
+                    SuggestionChip(onClick = {}, label = { Text("Mood: $mood") })
+                    SuggestionChip(onClick = {}, label = { Text("Platform: $platform") })
+                    SuggestionChip(onClick = {}, label = { Text("Rating: ≥$rating") })
+                    SuggestionChip(onClick = {}, label = { Text("Mode: $mode") })
+                }
 
-                Text("Genre: $genre")
-                Text("Mood: $mood")
-                Text("Platform: $platform")
-                Text("Rating: $rating")
-                Text("Mode: $mode")
-
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
 
             if (games.isEmpty()) {
-
                 item {
-
-                    Text(
-                        text = "Tidak ada game yang cocok",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Tidak ada game yang cocok dengan kriteria",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
                 }
             }
 
@@ -143,77 +169,64 @@ fun ResultScreen(
                     game = game,
                     wishlistViewModel = wishlistViewModel,
                     reviewViewModel = reviewViewModel,
-                    userName = user.name
+                    userEmail = user.email
                 )
             }
 
+
             item {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(vertical = 12.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Kembali", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = {
+                            val shareText = buildString {
+                                append("Halo! Ini rekomendasi game seru untuk kamu \n\n")
+                                append("🎯 Genre: $genre\n")
+                                append("🎭 Mood: $mood\n")
+                                append("🎮 Platform: $platform\n")
+                                append("⭐ Rating: $rating\n")
+                                append("👥 Mode: $mode\n\n")
+                                append("Rekomendasi Teratas:\n")
+                                games.forEach { append("- ${it.name} (⭐${it.rating})\n") }
+                            }
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Bagikan ke"))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(vertical = 12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Bagikan", fontWeight = FontWeight.Bold)
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-
-                        val shareText = buildString {
-
-                            append("Halo! these recommendation games for you \n\n")
-
-                            append("Genre: $genre\n")
-                            append("Mood: $mood\n")
-                            append("Platform: $platform\n")
-                            append("Rating: $rating\n")
-                            append("Mode: $mode\n\n")
-
-                            append("Game Rekomendasi:\n")
-
-                            games.forEach {
-
-                                append("- ${it.name} ⭐${it.rating}\n")
-                            }
-                        }
-
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-
-                            type = "text/plain"
-
-                            putExtra(
-                                Intent.EXTRA_TEXT,
-                                shareText
-                            )
-                        }
-
-                        context.startActivity(
-                            Intent.createChooser(
-                                intent,
-                                "Bagikan ke"
-                            )
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    Text("Share")
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = {
-                        navController.navigate(
-                            Screen.Home.withName("reset")
-                        ) {
-                            popUpTo(Screen.Home.route) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    Text("Back")
-                }
             }
         }
     }
-
 
     if (showDialog) {
         ProfilDialog(
@@ -250,50 +263,116 @@ fun GameCard(
     game: Game,
     wishlistViewModel: WishlistViewModel,
     reviewViewModel: ReviewViewModel,
-    userName: String
-) {
-    val isWishlisted by wishlistViewModel.isWishlisted(game.id)
-        .collectAsState(initial = false)
-    val reviews by reviewViewModel.getReviewsByGame(game.id)
-        .collectAsState(initial = emptyList())
-
+    userEmail: String
+)
+{
+    val isWishlisted by wishlistViewModel.isWishlisted(game.id).collectAsState(initial = false)
+    val reviews by reviewViewModel.getReviewsByGame(game.id).collectAsState(initial = emptyList())
     var showReviewDialog by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
+            // Gambar Game dengan Clip Corner Atas & Aspek Rasio proporsional
             Image(
                 painter = painterResource(id = game.imageResId),
                 contentDescription = game.name,
-                modifier = Modifier.fillMaxWidth().height(180.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(170.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(text = game.name, style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Genre: ${game.genre}")
-                Text("Mood: ${game.mood}")
-                Text("Platform: ${game.platforms.joinToString()}")
-                Text("Mode: ${game.modes.joinToString()}")
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "⭐ ${game.rating}", style = MaterialTheme.typography.bodyMedium)
 
-                // tampilkan jumlah review
-                if (reviews.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Judul Game & Rating Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = "${reviews.size} review • Avg: ${"%.1f".format(reviews.map { it.rating }.average())}⭐",
+                        text = game.name,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    // Rating Bagian Atas
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = game.rating.toString(),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
+
+                // Deskripsi singkat game jika ada (opsional, tapi menambahkan sentuhan modern)
+                Text(
+                    text = game.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+
+                // Detail Atribut Informasi Game (Compact Layout)
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = "Genre & Mood: ${game.genre} • ${game.mood}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Platform: ${game.platforms.joinToString()}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Mode: ${game.modes.joinToString()}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // Info Komunitas / Review User
+                if (reviews.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = "💬 ${reviews.size} Ulasan Pengguna • Rata-rata: ${"%.1f".format(reviews.map { it.rating }.average())}★",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Spacer(modifier = Modifier.height(14.dp))
 
+                // Kolom Button Aksi yang Lebih Responsif & Indah
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedButton(
                         onClick = {
                             if (isWishlisted) wishlistViewModel.removeWishlist(game.id)
@@ -307,17 +386,40 @@ fun GameCard(
                                 )
                             )
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = if (isWishlisted) ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)) else ButtonDefaults.outlinedButtonColors()
                     ) {
-                        Text(if (isWishlisted) "❤️ Wishlisted" else "Wishlist")
+                        Icon(
+                            imageVector = if (isWishlisted) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (isWishlisted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isWishlisted) "Disukai" else "Wishlist",
+                            color = if (isWishlisted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                        )
                     }
 
-
-                    OutlinedButton(
+                    Button(
                         onClick = { showReviewDialog = true },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
-                        Text("Review")
+                        Icon(
+                            imageVector = Icons.Default.RateReview,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Review",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                        )
                     }
                 }
             }
@@ -333,7 +435,8 @@ fun GameCard(
                     Review(
                         gameId = game.id,
                         gameName = game.name,
-                        userName = userName,
+                        userName = userEmail.substringBefore("@"),
+                        userEmail = userEmail,
                         reviewText = reviewText,
                         rating = rating
                     )

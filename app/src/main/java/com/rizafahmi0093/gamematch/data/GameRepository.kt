@@ -292,6 +292,160 @@ object GameRepository {
             listOf("Single-player"),
             "Roguelike action",
             R.drawable.hades
+        ),
+        Game(
+            27,
+            "Genshin Impact",
+            "RPG",
+            "Casual",
+            listOf("Mobile", "PC", "Console"),
+            4.6,
+            listOf("Single-player", "Multiplayer (Co-op)"),
+            "Open-world anime RPG",
+            R.drawable.genshin
+        ),
+        Game(
+            28,
+            "Mobile Legends",
+            "Action",
+            "Competitive",
+            listOf("Mobile"),
+            4.4,
+            listOf("Multiplayer"),
+            "5v5 mobile MOBA",
+            R.drawable.mlbb
+        ),
+        Game(
+            29,
+            "The Last of Us Part I",
+            "Action",
+            "Serious",
+            listOf("PC", "PlayStation"),
+            4.9,
+            listOf("Single-player"),
+            "Emotional cinematic action",
+            R.drawable.tlou
+        ),
+        Game(
+            30,
+            "Outlast",
+            "Horror",
+            "Tense",
+            listOf("PC", "Console"),
+            4.5,
+            listOf("Single-player"),
+            "Terrifying asylum survival",
+            R.drawable.outlast
+        ),
+        Game(
+            31,
+            "The Sims 4",
+            "Simulation",
+            "Casual",
+            listOf("PC", "Console"),
+            4.3,
+            listOf("Single-player"),
+            "Life simulation game",
+            R.drawable.thesims
+        ),
+        Game(
+            32,
+            "Grand Theft Auto V",
+            "Action",
+            "Serious",
+            listOf("PC", "Console"),
+            4.8,
+            listOf("Single-player", "Multiplayer"),
+            "Open world criminality",
+            R.drawable.gtav
+        ),
+        Game(
+            33,
+            "Gran Turismo 7",
+            "Sports",
+            "Competitive",
+            listOf("PlayStation"),
+            4.5,
+            listOf("Single-player", "Multiplayer"),
+            "Real driving simulator",
+            R.drawable.granturismo
+        ),
+        Game(
+            34,
+            "Lethal Company",
+            "Horror",
+            "Casual",
+            listOf("PC"),
+            4.7,
+            listOf("Multiplayer (Co-op)"),
+            "Fun and scary scrap hunting",
+            R.drawable.lethalcompany
+        ),
+        Game(
+            35,
+            "Monster Hunter Wilds",
+            "RPG",
+            "Serious",
+            listOf("PC", "Console"),
+            4.7,
+            listOf("Single-player", "Multiplayer (Co-op)"),
+            "Co-op monster hunting RPG",
+            R.drawable.mhwilds
+        ),
+        Game(
+            36,
+            "Rocket League",
+            "Sports",
+            "Competitive",
+            listOf("PC", "Console"),
+            4.4,
+            listOf("Multiplayer"),
+            "Physics-based soccer with cars",
+            R.drawable.rocketleague
+        ),
+        Game(
+            37,
+            "Animal Crossing: New Horizons",
+            "Simulation",
+            "Casual",
+            listOf("Console"),
+            4.8,
+            listOf("Single-player", "Multiplayer"),
+            "Relaxing island getaway simulation",
+            R.drawable.animalcrossing
+        ),
+        Game(
+            38,
+            "Alan Wake 2",
+            "Horror",
+            "Tense",
+            listOf("PC", "Console"),
+            4.6,
+            listOf("Single-player"),
+            "Psychological survival horror",
+            R.drawable.alanwake2
+        ),
+        Game(
+            39,
+            "Counter-Strike 2",
+            "Action",
+            "Competitive",
+            listOf("PC"),
+            4.3,
+            listOf("Multiplayer"),
+            "Tactical competitive FPS",
+            R.drawable.cs2
+        ),
+        Game(
+            40,
+            "EA Sports FC 24",
+            "Sports",
+            "Competitive",
+            listOf("PC", "Console", "Mobile"),
+            4.1,
+            listOf("Multiplayer"),
+            "Authentic football experience",
+            R.drawable.easportsfc
         )
     )
 

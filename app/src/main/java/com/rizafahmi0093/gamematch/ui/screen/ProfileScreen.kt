@@ -33,6 +33,7 @@ import com.rizafahmi0093.gamematch.viewmodel.ReviewViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.collections.emptyList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,8 +48,9 @@ fun ProfileScreen(navController: NavController) {
 
     val allPosts by postViewModel.posts.collectAsState()
     val myPosts = allPosts.filter { it.userEmail == user.email }
-    val myReviews by reviewViewModel.getReviewsByUser(user.name)
-        .collectAsState(initial = emptyList())
+    val myReviews by remember(user.email) {
+        reviewViewModel.getReviewsByEmail(user.email)
+    }.collectAsState(initial = emptyList())
 
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Postingan", "Review")
