@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.rizafahmi0093.gamematch.network.ApiStatus
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.rizafahmi0093.gamematch.model.Comment
 import com.rizafahmi0093.gamematch.viewmodel.CommentViewModel
 
@@ -114,20 +115,28 @@ fun FeedScreen(navController: NavController) {
                         }
                     }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding),
-                        contentPadding = PaddingValues(bottom = 80.dp)
+                    PullToRefreshBox(
+
+                        isRefreshing = status == ApiStatus.LOADING,
+                        onRefresh = { postViewModel.loadPosts() }
                     ) {
-                        items(posts) { post ->
-                            PostCard(
-                                post = post,
-                                currentUserEmail = user.email,
-                                onDelete = {
-                                    postViewModel.deletePost(post.id, user.email)
-                                }
-                            )
+                        LazyColumn(
+
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(padding),
+                            contentPadding = PaddingValues(bottom = 80.dp)
+                        )
+                        {
+                            items(posts) { post ->
+                                PostCard(
+                                    post = post,
+                                    currentUserEmail = user.email,
+                                    onDelete = {
+                                        postViewModel.deletePost(post.id, user.email)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

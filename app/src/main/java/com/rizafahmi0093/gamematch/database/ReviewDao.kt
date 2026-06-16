@@ -16,8 +16,8 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews WHERE gameId = :gameId ORDER BY timestamp DESC")
     fun getByGame(gameId: Int): Flow<List<Review>>
 
-    @Query("SELECT * FROM reviews WHERE userName = :userName ORDER BY timestamp DESC")
-    fun getByUser(userName: String): Flow<List<Review>>
+    @Query("SELECT * FROM reviews WHERE userEmail = :userEmail ORDER BY timestamp DESC")
+    fun getByUser(userEmail: String): Flow<List<Review>>
 
     @Delete
     suspend fun delete(review: Review)

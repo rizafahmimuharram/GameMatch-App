@@ -6,10 +6,7 @@ sealed class Screen(val route: String) {
     data object Splash : Screen("splash")
 
     data object Input : Screen("input")
-
-    data object Home : Screen("home/{name}") {
-        fun withName(name: String) = "home/$name"
-    }
+    data object Home : Screen("home")
 
     data object Result :
         Screen("result/{genre}/{mood}/{platform}/{rating}/{mode}") {

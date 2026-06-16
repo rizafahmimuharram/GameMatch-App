@@ -1,6 +1,7 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -35,6 +36,7 @@ fun CreatePostScreen(navController: NavController) {
     val dataStore = UserDataStore(context)
     val user by dataStore.userFlow.collectAsState(initial = User())
 
+
     val postViewModel: PostViewModel = viewModel(factory = ViewModelFactory(context))
 
     var caption by remember { mutableStateOf("") }
@@ -55,6 +57,15 @@ fun CreatePostScreen(navController: NavController) {
             navController.navigate(Screen.Feed.route) {
                 popUpTo(Screen.Feed.route) { inclusive = true }
             }
+        }
+    }
+
+    val errorMessage by postViewModel.errorMessage
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            postViewModel.clearError()
+            isUploading = false   // reset loading state
         }
     }
 

@@ -8,6 +8,7 @@ data class Review(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val gameId: Int,
+    val userEmail: String = "",
     val gameName: String,
     val userName: String,
     val reviewText: String,

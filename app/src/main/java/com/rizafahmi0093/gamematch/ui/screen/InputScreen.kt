@@ -1,7 +1,5 @@
 package com.rizafahmi0093.gamematch.ui.screen
 
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CutCornerShape
@@ -13,8 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(navController: NavController) {
 
@@ -37,6 +32,7 @@ fun InputScreen(navController: NavController) {
     val dataStore = UserDataStore(context)
     val user by dataStore.userFlow.collectAsState(initial = User())
     var name by rememberSaveable(user.name) { mutableStateOf(user.name) }
+    var nameError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -45,8 +41,6 @@ fun InputScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-
         Text(
             text = stringResource(R.string.input_title).uppercase(),
             fontSize = 18.sp,
@@ -56,10 +50,13 @@ fun InputScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-
+        // ← TextField hanya SATU ini, sudah ada isError dan supportingText
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = {
+                name = it
+                if (it.isNotEmpty()) nameError = false  // ← reset error saat user mulai ketik
+            },
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontSize = 14.sp,
                 color = Color.Black
@@ -71,12 +68,17 @@ fun InputScreen(navController: NavController) {
                     color = Color(0xFFE040FB)
                 )
             },
-
+            isError = nameError,                         // ← validasi error
+            supportingText = {
+                if (nameError) Text(
+                    text = "Nama tidak boleh kosong",
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
             shape = CutCornerShape(0.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6015EB),
                 unfocusedBorderColor = Color(0xFF444444),
@@ -88,11 +90,10 @@ fun InputScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-
         Button(
             onClick = {
                 if (name.isEmpty()) {
-                    Toast.makeText(context, "NAME IS REQUIRED!", Toast.LENGTH_LONG).show()
+                    nameError = true       // ← tampilkan error di TextField
                     return@Button
                 }
                 CoroutineScope(Dispatchers.IO).launch {
@@ -100,7 +101,6 @@ fun InputScreen(navController: NavController) {
                 }
                 navController.navigate(Screen.Home.route)
             },
-
             shape = CutCornerShape(0.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF6015EB),

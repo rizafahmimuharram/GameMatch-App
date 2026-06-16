@@ -38,18 +38,7 @@
                 InputScreen(navController)
             }
 
-            composable(
-                route = Screen.Home.route,
-                arguments = listOf(
-                    navArgument("name") {
-                        type = NavType.StringType
-                    }
-                )
-            ) { backStackEntry ->
-
-                val name =
-                    backStackEntry.arguments?.getString("name") ?: ""
-
+            composable(Screen.Home.route) {
                 HomeScreen(navController)
             }
 
