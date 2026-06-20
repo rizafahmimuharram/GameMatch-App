@@ -319,7 +319,7 @@ fun GameCard(
                     }
                 }
 
-                // Deskripsi singkat game jika ada (opsional, tapi menambahkan sentuhan modern)
+
                 Text(
                     text = game.description,
                     style = MaterialTheme.typography.bodySmall,

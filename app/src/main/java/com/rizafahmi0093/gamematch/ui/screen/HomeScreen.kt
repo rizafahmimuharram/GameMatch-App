@@ -134,7 +134,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             GameMatchTopBar(
-                title = stringResource(R.string.title_step, currentStep + 1),
+                title = stringResource(R.string.title_step),
                 showBackButton = currentStep > 0,
                 onBackClick = { currentStep-- },
                 onProfilClick = { showDialog = true }

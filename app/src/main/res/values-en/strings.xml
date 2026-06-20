@@ -5,7 +5,7 @@
 
     <string name="splash_desc">Find the best games\nbased on your mood</string>
     <string name="start_button">Start</string>
-    <string name="title_step">GameMatch (%1$d/5)</string>
+    <string name="title_step">GameMatch</string>
     <string name="greeting">Hello, %1$s</string>
 
     <string name="choose_genre">Choose Genre</string>
