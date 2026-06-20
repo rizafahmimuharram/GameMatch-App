@@ -17,6 +17,7 @@
     import com.rizafahmi0093.gamematch.ui.screen.SplashScreen
     import com.rizafahmi0093.gamematch.ui.screen.TrendingScreen
     import com.rizafahmi0093.gamematch.ui.screen.WishlistScreen
+    import com.rizafahmi0093.gamematch.ui.screen.AboutScreen
 
     const val KEY_ID_MATCH = "idMatch"
 
@@ -128,6 +129,9 @@
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(navController)
+            }
+            composable(Screen.About.route) {
+                AboutScreen(navController)
             }
 
         }
