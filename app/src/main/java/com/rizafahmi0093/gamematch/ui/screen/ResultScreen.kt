@@ -329,9 +329,9 @@ fun GameCard(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
-                // Detail Atribut Informasi Game (Compact Layout)
+
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = "Genre & Mood: ${game.genre} • ${game.mood}",
