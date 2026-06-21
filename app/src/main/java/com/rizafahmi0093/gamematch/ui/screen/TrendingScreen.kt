@@ -167,7 +167,7 @@ fun TrendingItem(game: TrendingGame) {
             )
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
-                    text = game.title,         // ← ganti dari name
+                    text = game.title,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 2
                 )
